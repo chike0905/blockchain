@@ -6,6 +6,7 @@ import binascii
 import logging
 import socket
 import threading
+import re
 
 # logging
 logger = logging.getLogger("blcokchainlog")
@@ -18,6 +19,7 @@ fh.setFormatter(formatter)
 
 genesis = {"blocknum":0,"tx":["hello world!"],"previous_hash":0}
 chain = [genesis]
+peers = []
 
 
 def makeblock():
@@ -36,7 +38,7 @@ def makeblock():
     try:
         msg = msg.encode('utf-8')
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client.connect(("", 11451))
+        client.connect(("",5555))
         client.send(msg)
         res = client.recv(4096)
     except ConnectionRefusedError:
@@ -101,7 +103,7 @@ def sendmsg(msg):
     try:
         msg = msg.encode('utf-8')
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client.connect(("", 11451))
+        client.connect(("",5555))
         client.send(msg)
         response = client.recv(4096)
     except ConnectionRefusedError:
@@ -112,7 +114,7 @@ def sendmsg(msg):
 def rcvmsg():
     serversock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     serversock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    serversock.bind(("",11451))
+    serversock.bind(("",5555))
     serversock.listen(10)
 
     NUMBER_OF_THREADS = 10
@@ -132,24 +134,24 @@ def worker_thread(serversock):
     res = json.loads(response.decode("utf-8"))
     # get old block(send block)
     if res["code"] == 1:
-        clientsock.sendall(response)
+        clientsock.send(response)
         # Get last block of peer
         while(True):
             peerlast = clientsock.recv(1024)
             peerlast = int(peerlast)
             if peerlast == len(chain):
-                clientsock.sendall(b"")
+                clientsock.send(b"")
                 break
             else:
                 sblock = json.dumps(chain[peerlast])
                 sblock = sblock.encode("utf-8")
-                clientsock.sendall(sblock)
+                clientsock.send(sblock)
     # get orphan block(get block)
     elif res["code"] == 2:
-        clientsock.sendall(response)
+        clientsock.send(response)
         while(True):
             msg = str(len(chain))
-            clientsock.sendall(msg.encode("utf-8"))
+            clientsock.send(msg.encode("utf-8"))
             gblock = clientsock.recv(4096)
             if gblock == b"":
                 break
@@ -164,7 +166,7 @@ def worker_thread(serversock):
                 logger.log(20,"Get Blcok(%s) from peer" % gblock["blocknum"])
 
     else:
-        clientsock.sendall(response)
+        clientsock.send(response)
     clientsock.close()
 
 def checkblock(rcvblock):
@@ -184,6 +186,31 @@ def checkblock(rcvblock):
             s_msg = '{"result":"Send block is from different chain","code":2}'
     return s_msg.encode('utf-8')
 
+def addpeer():
+    print("Type host address of peer")
+    peer = input(">> ")
+    re_addr = re.compile("((?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))")
+    if re_addr.search(peer):
+        peers.append(peer)
+        print("Done add peer(%s)" % peer)
+    else:
+        print("Input(%s) is not IPv4 address" % peer)
+
+def rmpeer():
+    counter = 0
+    for peer in peers:
+        print("%s:%s" %(counter,peer))
+    print("Type number of peer you want remove")
+    peernum = input(">> ")
+    rmpeer = peers[int(peernum)]
+    peers.pop(int(peernum))
+    print("Done remove peer(%s)" % rmpeer)
+
+def showpeer():
+    counter = 0
+    for peer in peers:
+        print("%s:%s" %(counter,peer))
+
 if __name__ == "__main__":
     print("wellcome blcokchain!")
     while(True):
@@ -192,10 +219,14 @@ if __name__ == "__main__":
             makeblock()
         elif command == "showchain":
             showchain()
-        elif command == "rcvmsg":
+        elif command == "rcv":
             rcvmsg()
-        elif command == "sendmsg":
-            sendmsg()
+        elif command == "addpeer":
+            addpeer()
+        elif command == "rmpeer":
+            rmpeer()
+        elif command == "showpeer":
+            showpeer()
         elif command == "exit":
             sys.exit(0)
         else:
