@@ -5,6 +5,7 @@ import hashlib
 import binascii
 import logging
 import socket
+import threading
 
 # logging
 logger = logging.getLogger("blcokchainlog")
@@ -114,11 +115,16 @@ def rcvmsg():
     serversock.bind(("",11451))
     serversock.listen(10)
 
-    print('Waiting for connections...')
-    clientsock, client_address = serversock.accept()
+    NUMBER_OF_THREADS = 10
+    for _ in range(NUMBER_OF_THREADS):
+        thread = threading.Thread(target=worker_thread, args=(serversock, ))
+        thread.daemon = True
+        thread.start()
 
+def worker_thread(serversock):
+    clientsock, (client_address, client_port) = serversock.accept()
     rcvmsg = clientsock.recv(1024)
-    print('Received')
+    print('\nReceived from %s:%s' % (client_address,client_port))
     print(rcvmsg)
 
     rcvblock = json.loads(rcvmsg.decode('utf-8'))
