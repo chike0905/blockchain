@@ -213,6 +213,8 @@ def maketx():
             res, client = sendmsg(txmsg, peer)
             res = json.loads(res)
             print(res["result"])
+            txpool.append(tx)
+            logger.log(20,"Generate New TX(%s)" % tx["id"])
 
 def showtxpool():
     for tx in txpool:
