@@ -35,6 +35,7 @@ def makeblock():
     sblock = json.dumps(block)
 
     msg = sblock
+    '''
     try:
         msg = msg.encode('utf-8')
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -44,50 +45,52 @@ def makeblock():
     except ConnectionRefusedError:
         res = '{"result":"Connection refused","code":-1}'
         res = res.encode("utf-8")
+    '''
+    for peer in peers:
+        res = sendmsg(msg, "")
+        res = json.loads(res.decode('utf-8'))
+        if res["code"] == -1:
+            chain.append(block)
+            print(res["result"])
+            logger.log(20,"Generate New Blcok(%s) (Cannot send new block to peer)" % blocknum)
+        elif res["code"] == 0:
+            chain.append(block)
+            print(res["result"])
+            logger.log(20,"Generate New Blcok(%s)" % blocknum)
+        elif res["code"] == 1:
+            print(res["result"])
+            print("Get blocks...")
+            while(True):
+                msg = str(len(chain))
+                client.send(msg.encode("utf-8"))
+                gblock = client.recv(4096)
+                if gblock == b"":
+                    break
+                else:
+                    gblock = json.loads(gblock.decode("utf-8"))
+                    print("-----------------------")
+                    print(json.dumps(gblock,indent=4,
+                                            ensure_ascii=False,
+                                            sort_keys=True))
+                    print("-----------------------")
+                    chain.append(gblock)
+                    logger.log(20,"Get Blcok(%s) from peer" % gblock["blocknum"])
 
-    res = json.loads(res.decode('utf-8'))
-    if res["code"] == -1:
-        chain.append(block)
-        print(res["result"])
-        logger.log(20,"Generate New Blcok(%s) (Cannot send new block to peer)" % blocknum)
-    elif res["code"] == 0:
-        chain.append(block)
-        print(res["result"])
-        logger.log(20,"Generate New Blcok(%s)" % blocknum)
-    elif res["code"] == 1:
-        print(res["result"])
-        print("Get blocks...")
-        while(True):
-            msg = str(len(chain))
-            client.send(msg.encode("utf-8"))
-            gblock = client.recv(4096)
-            if gblock == b"":
-                break
-            else:
-                gblock = json.loads(gblock.decode("utf-8"))
-                print("-----------------------")
-                print(json.dumps(gblock,indent=4,
-                                        ensure_ascii=False,
-                                        sort_keys=True))
-                print("-----------------------")
-                chain.append(gblock)
-                logger.log(20,"Get Blcok(%s) from peer" % gblock["blocknum"])
-
-    elif res["code"] == 2:
-        print(res["result"])
-        print("Send blocks...")
-        while(True):
-            peerlast = client.recv(1024)
-            peerlast = int(peerlast)
-            if peerlast == len(chain):
-                client.send(b"")
-                break
-            else:
-                sblock = json.dumps(chain[peerlast])
-                sblock = sblock.encode("utf-8")
-                client.send(sblock)
-    else:
-        print(res["result"])
+        elif res["code"] == 2:
+            print(res["result"])
+            print("Send blocks...")
+            while(True):
+                peerlast = client.recv(1024)
+                peerlast = int(peerlast)
+                if peerlast == len(chain):
+                    client.send(b"")
+                    break
+                else:
+                    sblock = json.dumps(chain[peerlast])
+                    sblock = sblock.encode("utf-8")
+                    client.send(sblock)
+        else:
+            print(res["result"])
 
 
 def showchain():
@@ -99,11 +102,11 @@ def showchain():
                         sort_keys=True))
         print("-----------------------")
 
-def sendmsg(msg):
+def sendmsg(msg, dist):
     try:
         msg = msg.encode('utf-8')
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client.connect(("",5555))
+        client.connect((dist,5555))
         client.send(msg)
         response = client.recv(4096)
     except ConnectionRefusedError:
@@ -208,8 +211,11 @@ def rmpeer():
 
 def showpeer():
     counter = 0
-    for peer in peers:
-        print("%s:%s" %(counter,peer))
+    if len(peers) == 0:
+        print("this node not have peer")
+    else:
+        for peer in peers:
+            print("%s:%s" %(counter,peer))
 
 if __name__ == "__main__":
     print("wellcome blcokchain!")
