@@ -221,9 +221,9 @@ def maketx():
             logger.log(20,"Generate New TX(%s)" % tx["id"])
 
 def showtxpool():
-    for tx in txpool:
+    for txid in txpool.key():
         print("-----------------------")
-        print(json.dumps(tx,indent=4,
+        print(json.dumps(txpool[txid],indent=4,
                                 ensure_ascii=False,
                                 sort_keys=True))
         print("-----------------------")
