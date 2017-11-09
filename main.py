@@ -8,6 +8,8 @@ import socket
 import threading
 import re
 
+import random
+
 # logging
 logger = logging.getLogger("blcokchainlog")
 logger.setLevel(10)
@@ -17,16 +19,19 @@ formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
 fh.setFormatter(formatter)
 
 
-genesis = {"blocknum":0,"tx":["hello world!"],"previous_hash":0}
+genesis = {"blocknum":0,"tx":[{"id":0, "body":"hello world!"}],"previous_hash":0}
 chain = [genesis]
 peers = []
+txpool = []
 
 
 def makeblock():
+    global txpool
     blocknum = len(chain)
     previous = json.dumps(chain[-1])
     previoushash = hashlib.sha256(previous.encode('utf-8')).hexdigest()
-    block = {"blocknum":blocknum,"tx":[],"previous_hash":previoushash}
+    block = {"blocknum":blocknum, "tx":txpool, "previous_hash":previoushash}
+    txpool = []
     print("-----------------------")
     print(json.dumps(block,indent=4,
                     ensure_ascii=False,
@@ -35,51 +40,54 @@ def makeblock():
     sblock = json.dumps(block)
 
     msg = sblock
-    for peer in peers:
-        res, client = sendmsg(msg, peer)
-        res = json.loads(res.decode('utf-8'))
-        if res["code"] == -1:
-            chain.append(block)
-            print(res["result"])
-            logger.log(20,"Generate New Blcok(%s) (Cannot send new block to peer)" % blocknum)
-        elif res["code"] == 0:
-            chain.append(block)
-            print(res["result"])
-            logger.log(20,"Generate New Blcok(%s)" % blocknum)
-        elif res["code"] == 1:
-            print(res["result"])
-            print("Get blocks...")
-            while(True):
-                msg = str(len(chain))
-                client.send(msg.encode("utf-8"))
-                gblock = client.recv(4096)
-                if gblock == b"":
-                    break
-                else:
-                    gblock = json.loads(gblock.decode("utf-8"))
-                    print("-----------------------")
-                    print(json.dumps(gblock,indent=4,
-                                            ensure_ascii=False,
-                                            sort_keys=True))
-                    print("-----------------------")
-                    chain.append(gblock)
-                    logger.log(20,"Get Blcok(%s) from peer" % gblock["blocknum"])
+    if len(peers) == 0:
+        chain.append(block)
+    else:
+        for peer in peers:
+            res, client = sendmsg(msg, peer)
+            res = json.loads(res.decode('utf-8'))
+            if res["code"] == -1:
+                chain.append(block)
+                print(res["result"])
+                logger.log(20,"Generate New Blcok(%s) (Cannot send new block to peer)" % blocknum)
+            elif res["code"] == 0:
+                chain.append(block)
+                print(res["result"])
+                logger.log(20,"Generate New Blcok(%s)" % blocknum)
+            elif res["code"] == 1:
+                print(res["result"])
+                print("Get blocks...")
+                while(True):
+                    msg = str(len(chain))
+                    client.send(msg.encode("utf-8"))
+                    gblock = client.recv(4096)
+                    if gblock == b"":
+                        break
+                    else:
+                        gblock = json.loads(gblock.decode("utf-8"))
+                        print("-----------------------")
+                        print(json.dumps(gblock,indent=4,
+                                                ensure_ascii=False,
+                                                sort_keys=True))
+                        print("-----------------------")
+                        chain.append(gblock)
+                        logger.log(20,"Get Blcok(%s) from peer" % gblock["blocknum"])
 
-        elif res["code"] == 2:
-            print(res["result"])
-            print("Send blocks...")
-            while(True):
-                peerlast = client.recv(1024)
-                peerlast = int(peerlast)
-                if peerlast == len(chain):
-                    client.send(b"")
-                    break
-                else:
-                    sblock = json.dumps(chain[peerlast])
-                    sblock = sblock.encode("utf-8")
-                    client.send(sblock)
-        else:
-            print(res["result"])
+            elif res["code"] == 2:
+                print(res["result"])
+                print("Send blocks...")
+                while(True):
+                    peerlast = client.recv(1024)
+                    peerlast = int(peerlast)
+                    if peerlast == len(chain):
+                        client.send(b"")
+                        break
+                    else:
+                        sblock = json.dumps(chain[peerlast])
+                        sblock = sblock.encode("utf-8")
+                        client.send(sblock)
+            else:
+                print(res["result"])
 
 
 def showchain():
@@ -178,6 +186,21 @@ def checkblock(rcvblock):
             s_msg = '{"result":"Send block is from different chain","code":2}'
     return s_msg.encode('utf-8')
 
+def maketx():
+    seq='0123456789abcdefghijklmnopqrstuvwxyz'
+    sr = random.SystemRandom()
+    randstr = ''.join([sr.choice(seq) for i in range(50)])
+    tx = {"id":hashlib.sha256(randstr.encode('utf-8')).hexdigest(),"body":randstr}
+    txpool.append(tx)
+
+def showtxpool():
+    for tx in txpool:
+        print("-----------------------")
+        print(json.dumps(tx,indent=4,
+                                ensure_ascii=False,
+                                sort_keys=True))
+        print("-----------------------")
+
 def addpeer():
     print("Type host address of peer")
     peer = input(">> ")
@@ -222,6 +245,21 @@ if __name__ == "__main__":
             rmpeer()
         elif command == "showpeer":
             showpeer()
+        elif command == "maketx":
+            maketx()
+        elif command == "showtxpool":
+            showtxpool()
+        elif command == "help":
+             print("makeblock - make block form tx pool")
+             print("showchain - show blockchain")
+             print("rcv - start reciev block")
+             print("addpeer - add peer node")
+             print("rmpeer - rmove peer node")
+             print("showpeer - show peer node list")
+             print("maketx - make TX")
+             print("showtxpool - show TX pool")
+             print("help - show command list")
+             print("exit - exit this app")
         elif command == "exit":
             sys.exit(0)
         else:
