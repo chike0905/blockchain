@@ -178,7 +178,7 @@ def rcvmsg():
             else:
                 clientsock.send(response)
                 for tx in rcvblock["tx"]:
-                    if tx["id"] in txpool.keys()
+                    if tx["id"] in txpool.keys():
                         txpool.pop(tx["id"])
                 chain.append(rcvblock)
             clientsock.close()
