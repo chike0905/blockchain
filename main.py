@@ -36,7 +36,7 @@ def makeblock():
 
     msg = sblock
     for peer in peers:
-        res = sendmsg(msg, peer)
+        res, client = sendmsg(msg, peer)
         res = json.loads(res.decode('utf-8'))
         if res["code"] == -1:
             chain.append(block)
@@ -102,7 +102,7 @@ def sendmsg(msg, dist):
     except ConnectionRefusedError:
         response = '{"result":"Connection refused","code":-1}'
         response = response.encode("utf-8")
-    return response
+    return response, client
 
 def rcvmsg():
     while(True):
