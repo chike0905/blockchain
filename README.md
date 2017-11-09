@@ -7,12 +7,13 @@ This is Blockchain for my implement training.
 # TODO
 - Peer connection management
     - search inital peer
-    - send mssage peers
-        - message stracture
 - Transaction
-    - Transaction data stracture
     - Transaction management
     - Transaction varidation
 - Block
-    - Block stracture
     - Block varidation
+- chain manegement
+    - check chain when block "reciving"
+        - now check when sending and recieving
+- make class(refuctoring)
+    - divide for function
