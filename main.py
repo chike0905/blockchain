@@ -130,6 +130,8 @@ def rcvmsg():
         # TODO:TX
         if rcv["type"] == "tx":
             print("recive tx")
+            tx = rcv["body"]
+            txpool.append(tx)
         elif rcv["type"] == "block":
             print("recive block")
             # Block
@@ -199,7 +201,13 @@ def maketx():
     sr = random.SystemRandom()
     randstr = ''.join([sr.choice(seq) for i in range(50)])
     tx = {"id":hashlib.sha256(randstr.encode('utf-8')).hexdigest(),"body":randstr}
-    txpool.append(tx)
+    if len(peers) == 0:
+        txpool.append(tx)
+        logger.log(20,"Generate New TX(%s) (peer to send new tx is not found)" % tx["id"])
+    else:
+        for peer in peers:
+            txmsg = json.dumps({"type":"tx", "body":tx})
+            res, client = sendmsg(txmsg, peer)
 
 def showtxpool():
     for tx in txpool:
