@@ -90,7 +90,6 @@ def makeblock():
                     sblock = sblock.encode("utf-8")
                     client.send(sblock)
         else:
-            print(res["result"])
 
 
 def showchain():
@@ -117,9 +116,9 @@ def sendmsg(msg, dist):
 def rcvmsg():
     serversock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     serversock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    serversock.bind(("",5555))
+    serversock.bind((peer[0],5555))
     serversock.listen(10)
-
+ 
     NUMBER_OF_THREADS = 10
     for _ in range(NUMBER_OF_THREADS):
         thread = threading.Thread(target=worker_thread, args=(serversock, ))
