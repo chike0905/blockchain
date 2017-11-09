@@ -47,7 +47,7 @@ def makeblock():
         res = res.encode("utf-8")
     '''
     for peer in peers:
-        res = sendmsg(msg, "")
+        res = sendmsg(msg, peer)
         res = json.loads(res.decode('utf-8'))
         if res["code"] == -1:
             chain.append(block)
@@ -103,6 +103,7 @@ def showchain():
         print("-----------------------")
 
 def sendmsg(msg, dist):
+    print("Send message for "+dist)
     try:
         msg = msg.encode('utf-8')
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -120,13 +121,6 @@ def rcvmsg():
     serversock.bind((peers[0],5555))
     serversock.listen(10)
 
-    NUMBER_OF_THREADS = 10
-    for _ in range(NUMBER_OF_THREADS):
-        thread = threading.Thread(target=worker_thread, args=(serversock, ))
-        thread.daemon = True
-        thread.start()
-
-def worker_thread(serversock):
     clientsock, (client_address, client_port) = serversock.accept()
     rcvmsg = clientsock.recv(1024)
     print('\nReceived from %s:%s' % (client_address,client_port))
