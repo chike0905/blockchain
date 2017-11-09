@@ -99,8 +99,8 @@ def sendmsg(msg, dist):
         client.connect((dist,5555))
         client.send(msg)
         response = client.recv(4096)
-    except ConnectionRefusedError:
-        response = '{"result":"Connection refused","code":-1}'
+    except Exception as e:
+        response = '{"result":"'+str(e.args)+'","code":-1}'
         response = response.encode("utf-8")
     return response, client
 
@@ -155,7 +155,6 @@ def rcvmsg():
         else:
             clientsock.send(response)
         clientsock.close()
-        print(">> ")
 
 def rcvstart():
     rcvthread = threading.Thread(target=rcvmsg)
