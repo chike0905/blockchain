@@ -117,7 +117,7 @@ def sendmsg(msg, dist):
 def rcvmsg():
     serversock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     serversock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    serversock.bind((peer[0],5555))
+    serversock.bind((peers[0],5555))
     serversock.listen(10)
 
     NUMBER_OF_THREADS = 10
