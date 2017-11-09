@@ -131,6 +131,7 @@ def rcvmsg():
         if rcv["type"] == "tx":
             print("recive tx")
             tx = rcv["body"]
+            clientsock.send('{"result":"Tx is accepted","code":0}')
             txpool.append(tx)
         elif rcv["type"] == "block":
             print("recive block")
@@ -208,6 +209,8 @@ def maketx():
         for peer in peers:
             txmsg = json.dumps({"type":"tx", "body":tx})
             res, client = sendmsg(txmsg, peer)
+            res = json.loads(res)
+            print(res["result"])
 
 def showtxpool():
     for tx in txpool:
