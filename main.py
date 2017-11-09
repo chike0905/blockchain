@@ -30,7 +30,8 @@ def makeblock():
     blocknum = len(chain)
     previous = json.dumps(chain[-1])
     previoushash = hashlib.sha256(previous.encode('utf-8')).hexdigest()
-    block = {"type":"block","body":{"blocknum":blocknum, "tx":txpool, "previous_hash":previoushash}}
+    block = {"blocknum":blocknum, "tx":txpool, "previous_hash":previoushash}
+    blockmsg = {"type":"block","body":block}
     txpool = []
     print("-----------------------")
     print(json.dumps(block,indent=4,
@@ -38,6 +39,7 @@ def makeblock():
                     sort_keys=True))
     print("-----------------------")
     sblock = json.dumps(block)
+    blockmsg = json.dumps(blockmsg)
 
     msg = sblock
     if len(peers) == 0:
@@ -45,7 +47,7 @@ def makeblock():
         logger.log(20,"Generate New Blcok(%s) (peer to send new block is not found)" % blocknum)
     else:
         for peer in peers:
-            res, client = sendmsg(msg, peer)
+            res, client = sendmsg(blockmsg, peer)
             res = json.loads(res.decode('utf-8'))
             if res["code"] == -1:
                 chain.append(block)
