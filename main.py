@@ -22,17 +22,20 @@ fh.setFormatter(formatter)
 genesis = {"blocknum":0,"tx":[{"id":0, "body":"hello world!"}],"previous_hash":0}
 chain = [genesis]
 peers = []
-txpool = []
+txpool = {}
 
 
 def makeblock():
     global txpool
+    pool = []
+    for txid in txpool.key():
+        pool.append(txpool[txid])
     blocknum = len(chain)
     previous = json.dumps(chain[-1])
     previoushash = hashlib.sha256(previous.encode('utf-8')).hexdigest()
-    block = {"blocknum":blocknum, "tx":txpool, "previous_hash":previoushash}
+    block = {"blocknum":blocknum, "tx":pool, "previous_hash":previoushash}
     blockmsg = {"type":"block","body":block}
-    txpool = []
+    txpool = {}
     print("-----------------------")
     print(json.dumps(block,indent=4,
                     ensure_ascii=False,
@@ -127,14 +130,13 @@ def rcvmsg():
         print('\nReceived from %s:%s' % (client_address,client_port))
         print(rcvmsg)
         rcv = json.loads(rcvmsg.decode('utf-8'))
-        # TODO:TX
         if rcv["type"] == "tx":
             print("recive tx")
             tx = rcv["body"]
             res = '{"result":"Tx is accepted","code":0}'
             res = res.encode('utf-8')
             clientsock.send(res)
-            txpool.append(tx)
+            txpool[hashlib.sha256(tx["body"].encode('utf-8')).hexdigest()] = tx
         elif rcv["type"] == "block":
             print("recive block")
             # Block
@@ -200,12 +202,14 @@ def checkblock(rcvblock):
     return s_msg.encode('utf-8')
 
 def maketx():
+    # make random body
     seq='0123456789abcdefghijklmnopqrstuvwxyz'
     sr = random.SystemRandom()
     randstr = ''.join([sr.choice(seq) for i in range(50)])
+
     tx = {"id":hashlib.sha256(randstr.encode('utf-8')).hexdigest(),"body":randstr}
     if len(peers) == 0:
-        txpool.append(tx)
+        txpool[hashlib.sha256(randstr.encode('utf-8')).hexdigest()] = tx
         logger.log(20,"Generate New TX(%s) (peer to send new tx is not found)" % tx["id"])
     else:
         for peer in peers:
@@ -213,7 +217,7 @@ def maketx():
             res, client = sendmsg(txmsg, peer)
             res = json.loads(res)
             print(res["result"])
-            txpool.append(tx)
+            txpool[hashlib.sha256(randstr.encode('utf-8')).hexdigest()] = tx
             logger.log(20,"Generate New TX(%s)" % tx["id"])
 
 def showtxpool():
