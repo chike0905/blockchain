@@ -76,6 +76,7 @@ def makeblock():
                                                 ensure_ascii=False,
                                                 sort_keys=True))
                         print("-----------------------")
+                        rm_tx_in_blcok_from_txpool(gblock)
                         chain.append(gblock)
                         logger.log(20,"Get Blcok(%s) from peer" % gblock["blocknum"])
 
@@ -173,15 +174,19 @@ def rcvmsg():
                                                 ensure_ascii=False,
                                                 sort_keys=True))
                         print("-----------------------")
+                        rm_tx_in_blcok_from_txpool(gblock)
                         chain.append(gblock)
                         logger.log(20,"Get Blcok(%s) from peer" % gblock["blocknum"])
             else:
                 clientsock.send(response)
-                for tx in rcvblock["tx"]:
-                    if tx["id"] in txpool.keys():
-                        txpool.pop(tx["id"])
+                rm_tx_in_blcok_from_txpool(rcvblock)
                 chain.append(rcvblock)
             clientsock.close()
+
+def rm_tx_in_blcok_from_txpool(block):
+    for tx in block["tx"]:
+        if tx["id"] in txpool.keys():
+            txpool.pop(tx["id"])
 
 def rcvstart():
     rcvthread = threading.Thread(target=rcvmsg)
