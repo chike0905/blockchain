@@ -30,7 +30,7 @@ def makeblock():
     blocknum = len(chain)
     previous = json.dumps(chain[-1])
     previoushash = hashlib.sha256(previous.encode('utf-8')).hexdigest()
-    block = {"blocknum":blocknum, "tx":txpool, "previous_hash":previoushash}
+    block = {"type":"block","body":{"blocknum":blocknum, "tx":txpool, "previous_hash":previoushash}}
     txpool = []
     print("-----------------------")
     print(json.dumps(block,indent=4,
@@ -42,6 +42,7 @@ def makeblock():
     msg = sblock
     if len(peers) == 0:
         chain.append(block)
+        logger.log(20,"Generate New Blcok(%s) (peer to send new block is not found)" % blocknum)
     else:
         for peer in peers:
             res, client = sendmsg(msg, peer)
@@ -123,46 +124,51 @@ def rcvmsg():
         rcvmsg = clientsock.recv(1024)
         print('\nReceived from %s:%s' % (client_address,client_port))
         print(rcvmsg)
-
-        rcvblock = json.loads(rcvmsg.decode('utf-8'))
-        response = checkblock(rcvblock)
-        res = json.loads(response.decode("utf-8"))
-        # get old block(send block)
-        if res["code"] == 1:
-            clientsock.send(response)
-            # Get last block of peer
-            while(True):
-                peerlast = clientsock.recv(1024)
-                peerlast = int(peerlast)
-                if peerlast == len(chain):
-                    clientsock.send(b"")
-                    break
-                else:
-                    sblock = json.dumps(chain[peerlast])
-                    sblock = sblock.encode("utf-8")
-                    clientsock.send(sblock)
-        # get orphan block(get block)
-        elif res["code"] == 2:
-            clientsock.send(response)
-            while(True):
-                msg = str(len(chain))
-                clientsock.send(msg.encode("utf-8"))
-                gblock = clientsock.recv(4096)
-                if gblock == b"":
-                    break
-                else:
-                    gblock = json.loads(gblock.decode("utf-8"))
-                    print("-----------------------")
-                    print(json.dumps(gblock,indent=4,
-                                            ensure_ascii=False,
-                                            sort_keys=True))
-                    print("-----------------------")
-                    chain.append(gblock)
-                    logger.log(20,"Get Blcok(%s) from peer" % gblock["blocknum"])
-
-        else:
-            clientsock.send(response)
-        clientsock.close()
+        rcv = json.loads(rcvmsg.decode('utf-8'))
+        # TODO:TX
+        if rcv["type"] == "tx":
+            print("recive tx")
+        elif rcv["type"] == "block":
+            print("recive block")
+            # Block
+            rcvblock = rcv["body"]
+            response = checkblock(rcvblock)
+            res = json.loads(response.decode("utf-8"))
+            # get old block(send block)
+            if res["code"] == 1:
+                clientsock.send(response)
+                # Get last block of peer
+                while(True):
+                    peerlast = clientsock.recv(1024)
+                    peerlast = int(peerlast)
+                    if peerlast == len(chain):
+                        clientsock.send(b"")
+                        break
+                    else:
+                        sblock = json.dumps(chain[peerlast])
+                        sblock = sblock.encode("utf-8")
+                        clientsock.send(sblock)
+            # get orphan block(get block)
+            elif res["code"] == 2:
+                clientsock.send(response)
+                while(True):
+                    msg = str(len(chain))
+                    clientsock.send(msg.encode("utf-8"))
+                    gblock = clientsock.recv(4096)
+                    if gblock == b"":
+                        break
+                    else:
+                        gblock = json.loads(gblock.decode("utf-8"))
+                        print("-----------------------")
+                        print(json.dumps(gblock,indent=4,
+                                                ensure_ascii=False,
+                                                sort_keys=True))
+                        print("-----------------------")
+                        chain.append(gblock)
+                        logger.log(20,"Get Blcok(%s) from peer" % gblock["blocknum"])
+            else:
+                clientsock.send(response)
+            clientsock.close()
 
 def rcvstart():
     rcvthread = threading.Thread(target=rcvmsg)
