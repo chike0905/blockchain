@@ -177,6 +177,10 @@ def rcvmsg():
                         logger.log(20,"Get Blcok(%s) from peer" % gblock["blocknum"])
             else:
                 clientsock.send(response)
+                for tx in rcvblock["tx"]:
+                    if tx["id"] in txpool.keys()
+                        txpool.pop(tx["id"])
+                chain.append(rcvblock)
             clientsock.close()
 
 def rcvstart():
@@ -189,7 +193,6 @@ def checkblock(rcvblock):
     previoushash = hashlib.sha256(previous.encode('utf-8')).hexdigest()
     if rcvblock["previous_hash"] == previoushash:
         print("Recive block is acceptable")
-        chain.append(rcvblock)
         s_msg = '{"result":"Send block is accepted","code":0}'
     else:
         print("Previous blockhash in recive block is different to my last block hash")
