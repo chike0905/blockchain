@@ -28,7 +28,7 @@ txpool = {}
 def makeblock():
     global txpool
     pool = []
-    for txid in txpool.key():
+    for txid in txpool.keys():
         pool.append(txpool[txid])
     blocknum = len(chain)
     previous = json.dumps(chain[-1])
