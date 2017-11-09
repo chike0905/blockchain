@@ -131,7 +131,9 @@ def rcvmsg():
         if rcv["type"] == "tx":
             print("recive tx")
             tx = rcv["body"]
-            clientsock.send('{"result":"Tx is accepted","code":0}')
+            res = '{"result":"Tx is accepted","code":0}'
+            res = res.encode('utf-8')
+            clientsock.send(res)
             txpool.append(tx)
         elif rcv["type"] == "block":
             print("recive block")
