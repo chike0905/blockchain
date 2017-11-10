@@ -8,12 +8,10 @@ This is Blockchain for my implement training.
 - Peer connection management
     - search inital peer
 - Transaction
-    - Transaction management
     - Transaction varidation
 - Block
     - Block varidation
 - chain manegement
-    - check chain when block "reciving"
-        - now check when sending and recieving
-- make class(refuctoring)
-    - divide for function
+    - resolv chain when recieve block from different chain
+- interface
+    - Except messaging, block and tx as a dict
