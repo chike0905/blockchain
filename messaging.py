@@ -56,7 +56,7 @@ class Messaging:
             return response
         return True
 
-    def strat_rcv(self):
+    def start_rcv(self):
         rcvthread = threading.Thread(target=self.reciver)
         rcvthread.setDaemon(True)
         rcvthread.start()

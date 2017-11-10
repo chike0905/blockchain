@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
 import hashlib
-import logging
-import re
 
 import random
 
@@ -17,7 +15,7 @@ class Transaction:
         randstr = ''.join([sr.choice(seq) for i in range(50)])
 
         tx = {"id":hashlib.sha256(randstr.encode('utf-8')).hexdigest(),"body":randstr}
-        self.add_tx_pool(tx)
+        return tx
 
     def show_tx_pool(self):
         for txid in self.txpool.keys():
