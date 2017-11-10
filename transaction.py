@@ -17,8 +17,7 @@ class Transaction:
         randstr = ''.join([sr.choice(seq) for i in range(50)])
 
         tx = {"id":hashlib.sha256(randstr.encode('utf-8')).hexdigest(),"body":randstr}
-        self.txpool[hashlib.sha256(randstr.encode('utf-8')).hexdigest()] = tx
-        logger.log(20,"Generate New TX(%s)" % tx["id"])
+        self.add_tx_pool(tx)
 
     def show_tx_pool(self):
         for txid in self.txpool.keys():
@@ -27,3 +26,8 @@ class Transaction:
                                             ensure_ascii=False,
                                             sort_keys=True))
             print("-----------------------")
+
+    def add_tx_pool(self,tx):
+        #TODO: verify TX
+        self.txpool[hashlib.sha256(tx["body"].encode('utf-8')).hexdigest()] = tx
+        return True

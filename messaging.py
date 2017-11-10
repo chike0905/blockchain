@@ -6,9 +6,13 @@ import socket
 import threading
 import re
 
+from blockchain import Blockchain
+
 
 class Messaging:
-    def __init__(self):
+    def __init__(self,bcobj,txobj):
+        self.bc = bcobj
+        self.tx = txobj
         self.peers = []
 
     def add_peer(self, peeraddr):
@@ -68,4 +72,8 @@ class Messaging:
             print('\nReceived from %s:%s' % (client_address,client_port))
             print(rcvmsg)
             rcvmsg = json.loads(rcvmsg.decode('utf-8'))
+            if rcvmsg["type"] == "block":
+               self.bc.add_new_block(rcvmsg["body"])
+            elif rcvmsg["type"] == "tx":
+               self.tx.add_tx_pool(rcvmsg["body"])
             clientsock.close()
