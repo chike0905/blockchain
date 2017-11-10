@@ -12,19 +12,19 @@ class Blockchain:
     def generate_block(self):
         # Make new Block include all tx in txpool
         pool = []
-        for txid in txobj.txpool.keys():
+        for txid in self.tx.txpool.keys():
             pool.append(self.tx.txpool[txid])
         blocknum = len(self.chain)
         previous = json.dumps(self.chain[-1])
         previoushash = hashlib.sha256(previous.encode('utf-8')).hexdigest()
         block = {"blocknum":blocknum, "tx":pool, "previous_hash":previoushash}
-        txobj.txpool = {}
+        self.tx.txpool = {}
+
         print("-----------------------")
         print(json.dumps(block,indent=4,
                         ensure_ascii=False,
                         sort_keys=True))
         print("-----------------------")
-        sblock = json.dumps(block)
         return block
 
     def add_new_block(self, block):
