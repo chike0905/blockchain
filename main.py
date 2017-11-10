@@ -1,14 +1,5 @@
 # -*- coding: utf-8 -*-
-import json
-import sys
-import hashlib
-import binascii
 import logging
-import socket
-import threading
-import re
-
-import random
 
 from blockchain import Blockchain
 from transaction import Transaction
@@ -26,6 +17,7 @@ fh = logging.FileHandler('logger.log')
 logger.addHandler(fh)
 formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
 fh.setFormatter(formatter)
+
 
 transaction = Transaction()
 blockchain = Blockchain(transaction)
