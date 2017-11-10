@@ -10,6 +10,11 @@ import re
 
 import random
 
+# For debug
+from IPython import embed
+from IPython.terminal.embed import InteractiveShellEmbed
+
+
 # logging
 logger = logging.getLogger("blcokchainlog")
 logger.setLevel(10)
@@ -19,11 +24,96 @@ formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
 fh.setFormatter(formatter)
 
 
-genesis = {"blocknum":0,"tx":[{"id":0, "body":"hello world!"}],"previous_hash":0}
-chain = [genesis]
 peers = []
 txpool = {}
 
+class Blockchain:
+    def __init__(self):
+        # Make blockchain include genesis
+        self.genesis = {"blocknum":0,"tx":[{"id":0, "body":"hello world!"}],"previous_hash":0}
+        self.chain = [self.genesis]
+
+    def generate_block(self):
+        # Make new Block include all tx in txpool
+        global txpool
+        pool = []
+        for txid in txpool.keys():
+            pool.append(txpool[txid])
+        blocknum = len(self.chain)
+        previous = json.dumps(self.chain[-1])
+        previoushash = hashlib.sha256(previous.encode('utf-8')).hexdigest()
+        block = {"blocknum":blocknum, "tx":pool, "previous_hash":previoushash}
+        txpool = {}
+        print("-----------------------")
+        print(json.dumps(block,indent=4,
+                        ensure_ascii=False,
+                        sort_keys=True))
+        print("-----------------------")
+        sblock = json.dumps(block)
+        return block
+
+    def add_new_block(self,block):
+        # if pass verify block, add block to chain
+        res = self.verify_block(block)
+        if res["code"] == 0:
+            self.chain.append(block)
+            return True
+        else:
+            return False
+
+    def verify_block(self,block):
+    # Verify Block
+        previous = json.dumps(self.chain[-1])
+        previoushash = hashlib.sha256(previous.encode('utf-8')).hexdigest()
+        if block["previous_hash"] == previoushash:
+            msg = {"result":"block has been verified","code":0}
+        else:
+            print("Previous blockhash in recive block is different to my last block hash")
+            if self.chain[-1]["blocknum"] > block["blocknum"]:
+                msg = {"result":"Send block is old","code":1}
+            elif self.chain[-1]["blocknum"] < block["blocknum"]:
+                msg = {"result":"Send block is orphan","code":2}
+            else:
+                msg = {"result":"Send block is from different chain","code":3}
+        return msg
+
+
+    def show_chain(self):
+        for block in self.chain:
+            print("blcoknum: %s" % block["blocknum"])
+            print("-----------------------")
+            print(json.dumps(block,indent=4,
+                            ensure_ascii=False,
+                            sort_keys=True))
+            print("-----------------------")
+
+    def get_block(self,blocknum):
+        # Get Specified block
+        block = self.chain[blocknum]
+        print("blcoknum: %s" % block["blocknum"])
+        print("-----------------------")
+        print(json.dumps(block,indent=4,
+                        ensure_ascii=False,
+                        sort_keys=True))
+        print("-----------------------")
+        return block
+
+
+class Messaging():
+    def send(self,msg, dist):
+        print("Send message for "+dist)
+        try:
+            msg = msg.encode('utf-8')
+            client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            client.connect((dist,5555))
+            client.send(msg)
+            response = client.recv(4096)
+        except Exception as e:
+            response = '{"result":"'+str(e.args)+'","code":-1}'
+            response = response.encode("utf-8")
+        return response, client
+
+embed()
 
 def makeblock():
     global txpool
