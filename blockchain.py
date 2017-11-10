@@ -1,35 +1,19 @@
 # -*- coding: utf-8 -*-
 import json
-import sys
 import hashlib
-import binascii
-import logging
-
-import random
-
-# logging
-logger = logging.getLogger("blcokchainlog")
-logger.setLevel(10)
-fh = logging.FileHandler('logger.log')
-logger.addHandler(fh)
-formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
-fh.setFormatter(formatter)
-
-
-peers = []
-txpool = {}
 
 class Blockchain:
-    def __init__(self):
+    def __init__(self,txobj):
         # Make blockchain include genesis
         self.genesis = {"blocknum":0,"tx":[{"id":0, "body":"hello world!"}],"previous_hash":0}
         self.chain = [self.genesis]
+        self.tx = txobj
 
-    def generate_block(self,txobj):
+    def generate_block(self):
         # Make new Block include all tx in txpool
         pool = []
         for txid in txobj.txpool.keys():
-            pool.append(txobj.txpool[txid])
+            pool.append(self.tx.txpool[txid])
         blocknum = len(self.chain)
         previous = json.dumps(self.chain[-1])
         previoushash = hashlib.sha256(previous.encode('utf-8')).hexdigest()
@@ -47,6 +31,9 @@ class Blockchain:
         # if pass verify block, add block to chain
         res = self.verify_block(block)
         if res["code"] == 0:
+            for tx in block["tx"]:
+                if tx["id"] in self.tx.txpool.keys():
+                    self.tx.txpool.pop(tx["id"])
             self.chain.append(block)
             return True
         else:

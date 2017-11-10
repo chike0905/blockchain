@@ -1,13 +1,8 @@
 # -*- coding: utf-8 -*-
 import json
-import sys
-import logging
 import socket
 import threading
 import re
-
-from blockchain import Blockchain
-
 
 class Messaging:
     def __init__(self,bcobj,txobj):
