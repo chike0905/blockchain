@@ -21,8 +21,8 @@ fh.setFormatter(formatter)
 class BlockchainService:
     def __init__(self):
         self.tx = Transaction()
-        self.bc = Blockchain(transaction)
-        self.msg = Messaging(blockchain, transaction)
+        self.bc = Blockchain(self.tx)
+        self.msg = Messaging(self.bc, self.tx)
 
     def make_block(self):
         block = self.bc.generate_block()
