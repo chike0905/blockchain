@@ -33,7 +33,7 @@ class BlockchainService:
             # send generated block
             blkmsg = {"type":"block", "body":block}
             for peer in self.msg.peers:
-                self.msg.send(peer, blkmsg)
+                self.msg.send(blkmsg, peer)
 
 
 embed()
