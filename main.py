@@ -42,7 +42,7 @@ class BlockchainService:
 
     def make_tx(self):
         transaction = self.tx.generate_tx()
-        if not self.bc.add_tx_pool(transaction):
+        if not self.tx.add_tx_pool(transaction):
             print("Transaction is not generated")
         else:
             print("Transaction is generated")
