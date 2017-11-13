@@ -70,10 +70,11 @@ class Messaging:
             serversock.listen(10)
             clientsock, (client_address, client_port) = serversock.accept()
             rcvmsg = clientsock.recv(1024)
-            self.logger.log(20,"Receive message from %s:%s" % (client_address,client_port))
             rcvmsg = json.loads(rcvmsg.decode('utf-8'))
             if rcvmsg["type"] == "block":
+               self.logger.log(20,"Receive Block from %s:%s" % (client_address,client_port))
                self.bc.add_new_block(rcvmsg["body"])
             elif rcvmsg["type"] == "tx":
+               self.logger.log(20,"Receive Transaction from %s:%s" % (client_address,client_port))
                self.tx.add_tx_pool(rcvmsg["body"])
             clientsock.close()
