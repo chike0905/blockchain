@@ -40,5 +40,15 @@ class BlockchainService:
             for peer in self.msg.peers:
                 self.msg.send(blkmsg, peer)
 
+    def make_tx(self):
+        transaction = self.tx.generate_tx()
+        if not self.bc.add_tx_pool(transaction):
+            print("Transaction is not generated")
+        else:
+            print("Transaction is generated")
+            # send generated block
+            txmsg = {"type":"tx", "body":transaction}
+            for peer in self.msg.peers:
+                self.msg.send(txmsg, peer)
 
 embed()

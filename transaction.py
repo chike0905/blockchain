@@ -9,7 +9,7 @@ class Transaction:
         self.txpool = {}
         self.logger = logger
 
-    def make_tx(self):
+    def generate_tx(self):
         # make random body
         seq='0123456789abcdefghijklmnopqrstuvwxyz'
         sr = random.SystemRandom()
