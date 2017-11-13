@@ -49,7 +49,7 @@ class Messaging:
             response = client.recv(4096)
         except Exception as e:
             response = '{"result":"'+str(e.args)+'","code":-1}'
-            self.logger.log(30,"Error Send message to %s : %s" % dist, e.args)
+            self.logger.log(30,"Error Send message to %s : %s" % (dist, e.args))
             response = response.encode("utf-8")
             return response
         return True
