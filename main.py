@@ -28,7 +28,7 @@ class BlockchainService:
         block = self.bc.generate_block()
         if not self.bc.add_new_block(block):
             print("Block is not generated")
-        else
+        else:
             print("Block is generated")
             # send generated block
             blkmsg = {"type":"block", "body":block}
