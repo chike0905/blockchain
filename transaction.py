@@ -30,4 +30,5 @@ class Transaction:
     def add_tx_pool(self,tx):
         #TODO: verify TX
         self.txpool[hashlib.sha256(tx["body"].encode('utf-8')).hexdigest()] = tx
+        self.logger.log(20,"Append New TX(%s) to my txpool" % tx["id"])
         return True
