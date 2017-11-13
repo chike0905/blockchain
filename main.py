@@ -17,6 +17,7 @@ class BlockchainService:
         self.tx = Transaction(self.logger)
         self.bc = Blockchain(self.logger, self.tx)
         self.msg = Messaging(self.logger, self.bc, self.tx)
+        self.logger.log(20,"Start Blockchain Service")
 
     def init_logger(self):
         # logging

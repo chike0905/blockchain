@@ -16,6 +16,7 @@ class Messaging:
         if re_addr.search(peeraddr):
             self.peers.append(peeraddr)
             print("Done add peer(%s)" % peeraddr)
+            self.logger.log(20,"Add peer(%s)" % peeraddr)
             return True
         else:
             print("%s is not IPv4 address" % peeraddr)
@@ -28,6 +29,7 @@ class Messaging:
             rmpeer = self.peers[peernum]
             self.peers.pop(peernum)
             print("Done remove peer(%s)" % rmpeer)
+            self.logger.log(20,"remove peer(%s)" % rmpeer)
             return True
 
     def show_peer(self):
@@ -58,6 +60,7 @@ class Messaging:
         rcvthread = threading.Thread(target=self.reciver)
         rcvthread.setDaemon(True)
         rcvthread.start()
+        self.logger.log(20,"Start recieving message")
 
     def reciver(self):
         while(True):
