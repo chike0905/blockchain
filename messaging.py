@@ -37,9 +37,10 @@ class Messaging:
             for peer in self.peers:
                 print("%s:%s" %(counter,peer))
 
-    def send(self,msg, dist):
+    def send(self, msg, dist):
         print("Send message for "+dist)
         try:
+            msg = json.dump(msg)
             msg = msg.encode('utf-8')
             client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             client.connect((dist,5555))
