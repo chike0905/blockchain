@@ -5,8 +5,9 @@ import hashlib
 import random
 
 class Transaction:
-    def __init__(self):
+    def __init__(self, logger):
         self.txpool = {}
+        self.logger = logger
 
     def make_tx(self):
         # make random body
@@ -15,6 +16,7 @@ class Transaction:
         randstr = ''.join([sr.choice(seq) for i in range(50)])
 
         tx = {"id":hashlib.sha256(randstr.encode('utf-8')).hexdigest(),"body":randstr}
+        self.logger.log(20,"Generate New TX(%s)" % tx["id"])
         return tx
 
     def show_tx_pool(self):

@@ -5,10 +5,11 @@ import threading
 import re
 
 class Messaging:
-    def __init__(self,bcobj,txobj):
+    def __init__(self, logger, bcobj, txobj):
         self.bc = bcobj
         self.tx = txobj
         self.peers = []
+        self.logger = logger
 
     def add_peer(self, peeraddr):
         re_addr = re.compile("((?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))")
@@ -38,9 +39,9 @@ class Messaging:
                 print("%s:%s" %(counter,peer))
 
     def send(self, msg, dist):
-        print("Send message for "+dist)
+        self.logger.log(20,"Send message to %s" % dist)
         try:
-            msg = json.dump(msg)
+            msg = json.dumps(msg)
             msg = msg.encode('utf-8')
             client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             client.connect((dist,5555))
@@ -48,6 +49,7 @@ class Messaging:
             response = client.recv(4096)
         except Exception as e:
             response = '{"result":"'+str(e.args)+'","code":-1}'
+            self.logger.log(30,"Error Send message to %s : %s" % dist, e.args)
             response = response.encode("utf-8")
             return response
         return True
@@ -65,8 +67,7 @@ class Messaging:
             serversock.listen(10)
             clientsock, (client_address, client_port) = serversock.accept()
             rcvmsg = clientsock.recv(1024)
-            print('\nReceived from %s:%s' % (client_address,client_port))
-            print(rcvmsg)
+            self.logger.log(20,"Receive message from %s:%s" % (client_address,client_port))
             rcvmsg = json.loads(rcvmsg.decode('utf-8'))
             if rcvmsg["type"] == "block":
                self.bc.add_new_block(rcvmsg["body"])

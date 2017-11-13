@@ -3,10 +3,11 @@ import json
 import hashlib
 
 class Blockchain:
-    def __init__(self,txobj):
+    def __init__(self, logger, txobj):
         # Make blockchain include genesis
         self.genesis = {"blocknum":0,"tx":[{"id":0, "body":"hello world!"}],"previous_hash":0}
         self.chain = [self.genesis]
+        self.logger = logger
         self.tx = txobj
 
     def generate_block(self):
@@ -25,6 +26,7 @@ class Blockchain:
                         ensure_ascii=False,
                         sort_keys=True))
         print("-----------------------")
+        self.logger.log(20,"Generate New Block(%s)" % block["blocknum"])
         return block
 
     def add_new_block(self, block):
@@ -35,6 +37,7 @@ class Blockchain:
                 if tx["id"] in self.tx.txpool.keys():
                     self.tx.txpool.pop(tx["id"])
             self.chain.append(block)
+            self.logger.log(20,"Append New Block(%s) to my chain" % block["blocknum"])
             return True
         else:
             # TODO: resolv confrict of chain -> difine consensus

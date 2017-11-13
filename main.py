@@ -10,19 +10,23 @@ from IPython import embed
 from IPython.terminal.embed import InteractiveShellEmbed
 
 
-# logging
-logger = logging.getLogger("blcokchainlog")
-logger.setLevel(10)
-fh = logging.FileHandler('logger.log')
-logger.addHandler(fh)
-formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
-fh.setFormatter(formatter)
 
 class BlockchainService:
     def __init__(self):
-        self.tx = Transaction()
-        self.bc = Blockchain(self.tx)
-        self.msg = Messaging(self.bc, self.tx)
+        self.logger = self.init_logger()
+        self.tx = Transaction(self.logger)
+        self.bc = Blockchain(self.logger, self.tx)
+        self.msg = Messaging(self.logger, self.bc, self.tx)
+
+    def init_logger(self):
+        # logging
+        logger = logging.getLogger("blcokchainlog")
+        logger.setLevel(10)
+        fh = logging.FileHandler('logger.log')
+        logger.addHandler(fh)
+        formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
+        fh.setFormatter(formatter)
+        return logger
 
     def make_block(self):
         block = self.bc.generate_block()
