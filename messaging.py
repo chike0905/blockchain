@@ -82,16 +82,16 @@ class Messaging:
                         for blocknum in range(len(self.bc.chain),rcvmsg["body"]["blocknum"]+1):
                             res, resmsg = self.send({"type":"getblk", "body":{"blocknum":blocknum}}, client_address)
                             resmsg = json.loads(resmsg.decode('utf-8'))
-                            self.bc.add_new_block(rcvmsg["body"])
+                            self.bc.add_new_block(resmsg["body"])
                     elif resadd["code"] == 3:
                         self.logger.log(20,"Receive Block from %s from different chain" % client_address)
 
             elif rcvmsg["type"] == "tx":
-               self.logger.log(20,"Receive Transaction from %s:%s" % (client_address,client_port))
+               self.logger.log(20,"Receive Transaction from %s:%s" % (client_address, client_port))
                self.tx.add_tx_pool(rcvmsg["body"])
 
             elif rcvmsg["type"] == "getblk":
-                self.logger.log(20,"Receive Get Block Request from %s:%s" % (client_address, client_port))
+                self.logger.log(20,"Receive Get Block(%s) Request from %s:%s" % (str(rcvmsg["body"]["blocknum"]), client_address, client_port))
                 if len(self.bc.chain)-1 > rcvmsg["body"]["blocknum"]:
                     block = self.bc.chain[rcvmsg["body"]["blocknum"]]
                     rtnmsg = {"code":0,"body":block}
