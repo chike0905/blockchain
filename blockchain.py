@@ -41,7 +41,7 @@ class Blockchain:
             return True
         else:
             # TODO: resolv confrict of chain -> difine consensus
-            return False
+            return res
 
     def verify_block(self, block):
         # Verify Block
@@ -51,7 +51,7 @@ class Blockchain:
             msg = {"result":"block has been verified","code":0}
         else:
             # TODO: How different my chain and chain from block
-            print("Previous blockhash in recive block is different to my last block hash")
+            self.logger.log(20,"Previous blockhash in check block is different from my last block hash")
             if self.chain[-1]["blocknum"] > block["blocknum"]:
                 msg = {"result":"Send block is old","code":1}
             elif self.chain[-1]["blocknum"] < block["blocknum"]:
@@ -59,3 +59,6 @@ class Blockchain:
             else:
                 msg = {"result":"Send block is from different chain","code":3}
         return msg
+
+    def get_blocks(self, start, end):
+        return self.chain[start:end+1]

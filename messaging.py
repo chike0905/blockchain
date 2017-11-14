@@ -53,8 +53,8 @@ class Messaging:
             response = '{"result":"'+str(e.args)+'","code":-1}'
             self.logger.log(30,"Error Send message to %s : %s" % (dist, e.args))
             response = response.encode("utf-8")
-            return response
-        return True
+            return False, response
+        return True, response
 
     def start_rcv(self):
         rcvthread = threading.Thread(target=self.reciver)
@@ -72,9 +72,25 @@ class Messaging:
             rcvmsg = clientsock.recv(1024)
             rcvmsg = json.loads(rcvmsg.decode('utf-8'))
             if rcvmsg["type"] == "block":
-               self.logger.log(20,"Receive Block from %s:%s" % (client_address,client_port))
-               self.bc.add_new_block(rcvmsg["body"])
+                self.logger.log(20,"Receive Block from %s:%s" % (client_address,client_port))
+                resadd = self.bc.add_new_block(rcvmsg["body"])
+                if not resadd:
+                    if resadd["code"] == 1:
+                        self.logger.log(20,"Receive Block from %s is old" % client_address)
+                    elif resadd["code"] == 2:
+                        self.logger.log(20,"Receive Block from %s is orphan" % client_address)
+
+                    elif resadd["code"] == 3:
+                        self.logger.log(20,"Receive Block from %s from different chain" % client_address)
+
             elif rcvmsg["type"] == "tx":
                self.logger.log(20,"Receive Transaction from %s:%s" % (client_address,client_port))
                self.tx.add_tx_pool(rcvmsg["body"])
+            elif rcvmsg["type"] == "getblk":
+                self.logger.log(20,"Receive Get Blocks Request from %s:%s" % (client_address,client_port))
+                blocks = self.bc.get_blocks(rcvmsg["body"]["start"],rcvmsg["body"]["end"])
+                rtnmsg = {"code":0,"body":blocks}
+                rtnmsg = json.dumps(rtnmsg)
+                rtnmsg = rtnmsg.encode("utf-8")
+                clientsock.send(rtnmsg)
             clientsock.close()
