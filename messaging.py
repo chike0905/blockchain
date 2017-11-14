@@ -71,6 +71,7 @@ class Messaging:
             clientsock, (client_address, client_port) = serversock.accept()
             rcvmsg = clientsock.recv(1024)
             rcvmsg = json.loads(rcvmsg.decode('utf-8'))
+
             if rcvmsg["type"] == "block":
                 self.logger.log(20,"Receive Block from %s:%s" % (client_address,client_port))
                 res, resadd = self.bc.add_new_block(rcvmsg["body"])
@@ -82,11 +83,13 @@ class Messaging:
                         for blocknum in range(len(self.bc.chain),rcvmsg["body"]["blocknum"]+1):
                             res, resmsg = self.send({"type":"getblk", "body":{"blocknum":blocknum}}, client_address)
                             resmsg = json.loads(resmsg.decode('utf-8'))
+                            self.logger.log(20,"Get Block(%s) from %s" %(str(blocknum), client_address))
                             res, rescode = self.bc.add_new_block(resmsg["body"])
                             if not res:
                                 break;
                     elif resadd["code"] == 3:
                         self.logger.log(20,"Receive Block from %s has been in my chain" % client_address)
+
             elif rcvmsg["type"] == "tx":
                self.logger.log(20,"Receive Transaction from %s:%s" % (client_address, client_port))
                self.tx.add_tx_pool(rcvmsg["body"])

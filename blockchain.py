@@ -59,4 +59,6 @@ class Blockchain:
                 msg = {"result":"Checked Block has been in my chain","code":3}
             else:
                 msg = {"result":"Checked Block is from different chain","code":1}
+
+        self.logger.log(20, msg["result"])
         return msg
