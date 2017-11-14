@@ -41,7 +41,7 @@ class Messaging:
                 print("%s:%s" %(counter,peer))
 
     def send(self, msg, dist):
-        self.logger.log(20,"Send message to %s" % dist)
+        self.logger.log(20,"Send %s message to %s" % (msg["type"], dist))
         try:
             msg = json.dumps(msg)
             msg = msg.encode('utf-8')
