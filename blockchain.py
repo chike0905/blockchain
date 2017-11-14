@@ -47,10 +47,6 @@ class Blockchain:
         # Verify Block
         previous = json.dumps(self.chain[-1])
         previoushash = hashlib.sha256(previous.encode('utf-8')).hexdigest()
-        print(type(block["previous_hash"]))
-        print(block["previous_hash"])
-        print(type(previoushash))
-        print(previoushash)
         if block["previous_hash"] == previoushash:
             msg = {"result":"block has been verified","code":0}
         else:

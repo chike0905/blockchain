@@ -92,7 +92,7 @@ class Messaging:
 
             elif rcvmsg["type"] == "getblk":
                 self.logger.log(20,"Receive Get Block(%s) Request from %s:%s" % (str(rcvmsg["body"]["blocknum"]), client_address, client_port))
-                if len(self.bc.chain)-1 > rcvmsg["body"]["blocknum"]:
+                if len(self.bc.chain)-1 >= rcvmsg["body"]["blocknum"]:
                     block = self.bc.chain[rcvmsg["body"]["blocknum"]]
                     rtnmsg = {"code":0,"body":block}
                 else:
