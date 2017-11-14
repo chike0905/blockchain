@@ -79,17 +79,24 @@ class Messaging:
                         self.logger.log(20,"Receive Block from %s is old" % client_address)
                     elif resadd["code"] == 2:
                         self.logger.log(20,"Receive Block from %s is orphan" % client_address)
-
+                        for blocknum in range(len(self.bc.chain),rcvmsg["body"]["blocknum"]+1):
+                            res, resmsg = self.send({"type":"getblk", "body":blocknum}, client_address)
+                            resmsg = json.loads(resmsg.decode('utf-8'))
+                            self.bc.add_new_block(rcvmsg["body"])
                     elif resadd["code"] == 3:
                         self.logger.log(20,"Receive Block from %s from different chain" % client_address)
 
             elif rcvmsg["type"] == "tx":
                self.logger.log(20,"Receive Transaction from %s:%s" % (client_address,client_port))
                self.tx.add_tx_pool(rcvmsg["body"])
+
             elif rcvmsg["type"] == "getblk":
-                self.logger.log(20,"Receive Get Blocks Request from %s:%s" % (client_address,client_port))
-                blocks = self.bc.get_blocks(rcvmsg["body"]["start"],rcvmsg["body"]["end"])
-                rtnmsg = {"code":0,"body":blocks}
+                self.logger.log(20,"Receive Get Block(%s) Request from %s:%s" % (rcvmsg["body"]["blocknum"], client_address, client_port))
+                if len(self.bc.chain) -1 > rcvmsg["body"]["blocknum"]:
+                    block = self.bc.chain[rcvmsg["body"]["blocknum"]]
+                    rtnmsg = {"code":0,"body":block}
+                else:
+                    rtnmsg = {"code":-1,"body":"index out of range"}
                 rtnmsg = json.dumps(rtnmsg)
                 rtnmsg = rtnmsg.encode("utf-8")
                 clientsock.send(rtnmsg)

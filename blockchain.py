@@ -59,6 +59,3 @@ class Blockchain:
             else:
                 msg = {"result":"Send block is from different chain","code":3}
         return msg
-
-    def get_blocks(self, start, end):
-        return self.chain[start:end+1]
