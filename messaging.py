@@ -75,7 +75,7 @@ class Messaging:
                 self.logger.log(20,"Receive Block from %s:%s" % (client_address,client_port))
                 res, resadd = self.bc.add_new_block(rcvmsg["body"])
                 if not res:
-                    elif resadd["code"] == 1:
+                    if resadd["code"] == 1:
                         self.logger.log(20,"Receive Block from %s comes from different chain" % client_address)
                     elif resadd["code"] == 2:
                         self.logger.log(20,"Receive Block from %s is orphan" % client_address)
