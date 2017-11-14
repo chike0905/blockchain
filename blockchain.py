@@ -51,9 +51,12 @@ class Blockchain:
             if block["previous_hash"] == previoushash:
                 msg = {"result":"Checked Block has been verified","code":0}
             else:
-                msg = {"result":"Checked Block is from different chain","code":3}
-        elif self.chain[-1]["blocknum"] > block["blocknum"]:
-            msg = {"result":"Checked Block is old","code":1}
+                msg = {"result":"Checked Block is from different chain","code":1}
         elif self.chain[-1]["blocknum"] < block["blocknum"]:
             msg = {"result":"Checked Block is orphan","code":2}
+        else:
+            if block["previous_hash"] == self.chain[block["blocknum"]]["previous_hash"]:
+                msg = {"result":"Checked Block has been in my chain","code":3}
+            else:
+                msg = {"result":"Checked Block is from different chain","code":1}
         return msg

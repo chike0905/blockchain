@@ -75,8 +75,8 @@ class Messaging:
                 self.logger.log(20,"Receive Block from %s:%s" % (client_address,client_port))
                 res, resadd = self.bc.add_new_block(rcvmsg["body"])
                 if not res:
-                    if resadd["code"] == 1:
-                        self.logger.log(20,"Receive Block from %s is old" % client_address)
+                    elif resadd["code"] == 1:
+                        self.logger.log(20,"Receive Block from %s comes from different chain" % client_address)
                     elif resadd["code"] == 2:
                         self.logger.log(20,"Receive Block from %s is orphan" % client_address)
                         for blocknum in range(len(self.bc.chain),rcvmsg["body"]["blocknum"]+1):
@@ -86,8 +86,7 @@ class Messaging:
                             if not res:
                                 break;
                     elif resadd["code"] == 3:
-                        self.logger.log(20,"Receive Block from %s from different chain" % client_address)
-
+                        self.logger.log(20,"Receive Block from %s has been in my chain" % client_address)
             elif rcvmsg["type"] == "tx":
                self.logger.log(20,"Receive Transaction from %s:%s" % (client_address, client_port))
                self.tx.add_tx_pool(rcvmsg["body"])
