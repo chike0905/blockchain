@@ -38,10 +38,10 @@ class Blockchain:
                     self.tx.txpool.pop(tx["id"])
             self.chain.append(block)
             self.logger.log(20,"Append New Block(%s) to my chain" % block["blocknum"])
-            return True
+            return True, res
         else:
             # TODO: resolv confrict of chain -> difine consensus
-            return res
+            return False, res
 
     def verify_block(self, block):
         # Verify Block

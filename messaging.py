@@ -73,8 +73,8 @@ class Messaging:
             rcvmsg = json.loads(rcvmsg.decode('utf-8'))
             if rcvmsg["type"] == "block":
                 self.logger.log(20,"Receive Block from %s:%s" % (client_address,client_port))
-                resadd = self.bc.add_new_block(rcvmsg["body"])
-                if not resadd:
+                res, resadd = self.bc.add_new_block(rcvmsg["body"])
+                if not res:
                     if resadd["code"] == 1:
                         self.logger.log(20,"Receive Block from %s is old" % client_address)
                     elif resadd["code"] == 2:

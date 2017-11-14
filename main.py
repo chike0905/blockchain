@@ -31,7 +31,8 @@ class BlockchainService:
 
     def make_block(self):
         block = self.bc.generate_block()
-        if not self.bc.add_new_block(block):
+        res, code = self.bc.add_new_block(block)
+        if not res:
             print("Block is not generated")
         else:
             print("Block is generated")
