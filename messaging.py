@@ -82,7 +82,9 @@ class Messaging:
                         for blocknum in range(len(self.bc.chain),rcvmsg["body"]["blocknum"]+1):
                             res, resmsg = self.send({"type":"getblk", "body":{"blocknum":blocknum}}, client_address)
                             resmsg = json.loads(resmsg.decode('utf-8'))
-                            self.bc.add_new_block(resmsg["body"])
+                            res, rescode = self.bc.add_new_block(resmsg["body"])
+                            if not res:
+                                break;
                     elif resadd["code"] == 3:
                         self.logger.log(20,"Receive Block from %s from different chain" % client_address)
 
