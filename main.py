@@ -29,8 +29,9 @@ class BlockchainService:
         fh.setFormatter(formatter)
         return logger
 
-    def make_block(self):
-        block = self.bc.generate_block()
+    def make_block(self, score):
+        # take score is for debug
+        block = self.bc.generate_block(score)
         res, code = self.bc.add_new_block(block)
         if not res:
             print("Block is not generated")

@@ -10,7 +10,7 @@ class Blockchain:
         self.logger = logger
         self.tx = txobj
 
-    def generate_block(self):
+    def generate_block(self, score):
         # Make new Block include all tx in txpool
         pool = []
         for txid in self.tx.txpool.keys():
@@ -18,7 +18,7 @@ class Blockchain:
         blocknum = len(self.chain)
         previous = json.dumps(self.chain[-1])
         previoushash = hashlib.sha256(previous.encode('utf-8')).hexdigest()
-        block = {"blocknum":blocknum, "tx":pool, "previous_hash":previoushash}
+        block = {"blocknum":blocknum, "tx":pool, "previous_hash":previoushash, "score":score}
         self.tx.txpool = {}
 
         print("-----------------------")
