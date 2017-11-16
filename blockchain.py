@@ -43,6 +43,11 @@ class Blockchain:
             # TODO: resolv confrict of chain -> difine consensus
             return False, res
 
+    def rm_last_block(self):
+        for tx in self.chain[-1]["tx"]:
+            self.tx.add_tx_pool(tx)
+        self.chain.pop(-1)
+
     def verify_block(self, block):
         # Verify Block
         previous = json.dumps(self.chain[-1])
