@@ -4,6 +4,8 @@ import socket
 import threading
 import re
 
+import hashlib
+
 class Messaging:
     def __init__(self, logger, bcobj, txobj):
         self.bc = bcobj
@@ -78,6 +80,17 @@ class Messaging:
                 if not res:
                     if resadd["code"] == 1:
                         self.logger.log(20,"Receive Block from %s comes from different chain" % client_address)
+                        for blocknum in reversed(range(1,rcvmsg["body"]["blocknum"])):
+                            res, resmsg = self.send({"type":"getblk", "body":{"blocknum":blocknum}}, client_address)
+                            resmsg = json.loads(resmsg.decode('utf-8'))
+                            block = resmsg["body"]
+                            if self.check_new_block_for_chain(self.bc.chain[0:block["blocknum"]], block):
+                                if block["score"] > self.bc.chain[block["blocknum"]]["score"]:
+                                    for rmblocknum in range(blocknum,len(self.bc.chain)):
+                                        self.bc.rm_last_block()
+                                    self.bc.add_new_block(block)
+                                break
+
                     elif resadd["code"] == 2:
                         self.logger.log(20,"Receive Block from %s is orphan" % client_address)
                         for blocknum in range(len(self.bc.chain),rcvmsg["body"]["blocknum"]+1):
@@ -105,3 +118,12 @@ class Messaging:
                 rtnmsg = rtnmsg.encode("utf-8")
                 clientsock.send(rtnmsg)
             clientsock.close()
+
+    def check_new_block_for_chain(self,chain,block):
+        previous = json.dumps(chain[-1])
+        previoushash = hashlib.sha256(previous.encode('utf-8')).hexdigest()
+        if block["previous_hash"] == previoushash:
+            return True
+        else:
+            return False
+

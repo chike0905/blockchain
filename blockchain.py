@@ -53,18 +53,22 @@ class Blockchain:
         previous = json.dumps(self.chain[-1])
         previoushash = hashlib.sha256(previous.encode('utf-8')).hexdigest()
         if block["blocknum"] == self.chain[-1]["blocknum"]+1:
+            # new block
             if block["previous_hash"] == previoushash:
                 msg = {"result":"Checked Block has been verified","code":0}
             else:
                 msg = {"result":"Checked Block is from different chain","code":1}
         elif self.chain[-1]["blocknum"] < block["blocknum"]:
+            # orphan block
             msg = {"result":"Checked Block is orphan","code":2}
         else:
-            # TODO:this check is false. check that checked block["previous_hash"] and hash(self.bc.chain[block["blocknum"]-1])
-            if block["previous_hash"] == self.chain[block["blocknum"]]["previous_hash"]:
+            # old block
+            jsonblock = json.dumps(block)
+            myblock = json.dumps(self.chain[block["blocknum"]])
+            if hashlib.sha256(jsonblock.encode('utf-8')).hexdigest() == hashlib.sha256(myblock.encode('utf-8')).hexdigest():
                 msg = {"result":"Checked Block has been in my chain","code":3}
             else:
-                msg = {"result":"Checked Block is from different chain","code":4}
+                msg = {"result":"Checked Block is old and come from different chain","code":4}
 
         self.logger.log(20, msg["result"])
         return msg
