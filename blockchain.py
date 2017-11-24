@@ -60,10 +60,11 @@ class Blockchain:
         elif self.chain[-1]["blocknum"] < block["blocknum"]:
             msg = {"result":"Checked Block is orphan","code":2}
         else:
+            # TODO:this check is false. check that checked block["previous_hash"] and hash(self.bc.chain[block["blocknum"]-1])
             if block["previous_hash"] == self.chain[block["blocknum"]]["previous_hash"]:
                 msg = {"result":"Checked Block has been in my chain","code":3}
             else:
-                msg = {"result":"Checked Block is from different chain","code":1}
+                msg = {"result":"Checked Block is from different chain","code":4}
 
         self.logger.log(20, msg["result"])
         return msg
