@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
+import os
 
 from blockchain import Blockchain
 from transaction import Transaction
@@ -13,17 +14,20 @@ from IPython.terminal.embed import InteractiveShellEmbed
 
 class BlockchainService:
     def __init__(self):
+        if not os.path.isdir(".blockchain"):
+            os.makedirs(".blockchain")
         self.logger = self.init_logger()
         self.tx = Transaction(self.logger)
         self.bc = Blockchain(self.logger, self.tx)
         self.msg = Messaging(self.logger, self.bc, self.tx)
         self.logger.log(20,"Start Blockchain Service")
 
+
     def init_logger(self):
         # logging
         logger = logging.getLogger("blcokchainlog")
         logger.setLevel(10)
-        fh = logging.FileHandler('logger.log')
+        fh = logging.FileHandler('.blockchain/logger.log')
         logger.addHandler(fh)
         formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
         fh.setFormatter(formatter)

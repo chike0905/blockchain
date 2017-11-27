@@ -9,6 +9,7 @@ class Blockchain:
         self.chain = [self.genesis]
         self.logger = logger
         self.tx = txobj
+        self.chaindump = open('.blockchain/chain.json', 'w')
 
     def generate_block(self, score):
         # Make new Block include all tx in txpool
@@ -38,6 +39,7 @@ class Blockchain:
                     self.tx.txpool.pop(tx["id"])
             self.chain.append(block)
             self.logger.log(20,"Append New Block(%s) to my chain" % block["blocknum"])
+            self.chain_dump()
             return True, res
         else:
             # TODO: resolv confrict of chain -> difine consensus
@@ -46,7 +48,9 @@ class Blockchain:
     def rm_last_block(self):
         for tx in self.chain[-1]["tx"]:
             self.tx.add_tx_pool(tx)
+        rmblocknum = self.chain[-1]["blocknum"]
         self.chain.pop(-1)
+        self.logger.log(20,"Remove Block(%s) from my chain" % rmblocknum)
 
     def verify_block(self, block):
         # Verify Block
@@ -72,3 +76,11 @@ class Blockchain:
 
         self.logger.log(20, msg["result"])
         return msg
+
+    def chain_dump(self):
+        chaindict = {}
+        for a in range(0,len(self.chain)):
+            chaindict[a] = self.chain[a]
+        savepath = '.blockchain/chain.json'
+        with open(savepath, 'w') as outfile:
+                json.dump(chaindict, outfile, indent=4)
