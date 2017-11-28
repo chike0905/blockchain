@@ -1,15 +1,24 @@
 # -*- coding: utf-8 -*-
 import json
 import hashlib
+import os
 
 class Blockchain:
     def __init__(self, logger, txobj):
-        # Make blockchain include genesis
-        self.genesis = {"blocknum":0,"tx":[{"id":0, "body":"hello world!"}],"previous_hash":0}
-        self.chain = [self.genesis]
+        self.chain = []
+        # If chain data file exist, load data.
+        if os.path.exists('.blockchain/chain.json'):
+            f = open('.blockchain/chain.json', 'r')
+            chain = json.load(f)
+            for key in chain.keys():
+                self.chain.append(chain[key])
+            f.close()
+        else:
+            # Make blockchain include genesis
+            self.genesis = {"blocknum":0,"tx":[{"id":0, "body":"hello world!"}],"previous_hash":0}
+            self.chain.append(self.genesis)
         self.logger = logger
         self.tx = txobj
-        self.chaindump = open('.blockchain/chain.json', 'w')
 
     def generate_block(self, score):
         # Make new Block include all tx in txpool

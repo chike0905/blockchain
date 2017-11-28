@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 import os
+import json
 
 from blockchain import Blockchain
 from transaction import Transaction
@@ -14,14 +15,14 @@ from IPython.terminal.embed import InteractiveShellEmbed
 
 class BlockchainService:
     def __init__(self):
+        # Make data dir
         if not os.path.isdir(".blockchain"):
             os.makedirs(".blockchain")
         self.logger = self.init_logger()
+        self.logger.log(20,"Start Blockchain Service")
         self.tx = Transaction(self.logger)
         self.bc = Blockchain(self.logger, self.tx)
         self.msg = Messaging(self.logger, self.bc, self.tx)
-        self.logger.log(20,"Start Blockchain Service")
-
 
     def init_logger(self):
         # logging
