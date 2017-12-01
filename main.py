@@ -58,4 +58,4 @@ class BlockchainService:
             for peer in self.msg.peers:
                 self.msg.send(txmsg, peer)
 
-embed()
+#embed()
