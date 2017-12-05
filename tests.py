@@ -5,7 +5,7 @@ import json
 import hashlib
 from main import BlockchainService
 
-def test_makeblock():
+def test_make_block_include_tx():
     bcs = BlockchainService()
     for a in range(0,5):
         bcs.make_tx()
