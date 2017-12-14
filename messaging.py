@@ -59,12 +59,12 @@ class Messaging:
         return True, response
 
     def start_rcv(self):
-        rcvthread = threading.Thread(target=self.reciver)
+        rcvthread = threading.Thread(target=self.receiver)
         rcvthread.setDaemon(True)
         rcvthread.start()
         self.logger.log(20,"Start recieving message")
 
-    def reciver(self):
+    def receiver(self):
         while(True):
             serversock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             serversock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
