@@ -55,7 +55,7 @@ class Remote(object):
     def ping(self):
         try:
             self.open_connection()
-            self.send(b"",True)
+            self.send('ping',True)
             self.close_connection()
             return True
         except Exception as e:

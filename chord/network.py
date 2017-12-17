@@ -14,12 +14,12 @@ def read_from_socket(s):
 
 # sends all on socket, adding "\r\n"
 def send_to_socket(s, msg, res=False):
-    #print("SEND : %s" % msg)
+    print("SEND : %s" % msg)
     msg = str(msg)
     msg = {"type":"DHT", "body":msg}
     msg = json.dumps(msg)
     s.sendall(msg.encode("utf-8"))
     if res:
         response = s.recv(1028)
-        #print("RET : %s" % str(response))
+        print("RET : %s" % str(response))
         return response.decode("utf-8")

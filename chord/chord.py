@@ -90,8 +90,8 @@ class Local(object):
     def start(self):
         # start the daemons
         #self.daemons_['run'] = Daemon(self, 'run')
-        self.daemons_['fix_fingers'] = Daemon(self, 'fix_fingers')
-        self.daemons_['stabilize'] = Daemon(self, 'stabilize')
+        #self.daemons_['fix_fingers'] = Daemon(self, 'fix_fingers')
+        #self.daemons_['stabilize'] = Daemon(self, 'stabilize')
         self.daemons_['update_successors'] = Daemon(self, 'update_successors')
         for key in self.daemons_:
             self.daemons_[key].start()
@@ -274,6 +274,8 @@ class Local(object):
             self.notify(Remote(npredecessor))
         if command == 'get_successors':
             result = json.dumps(self.get_successors())
+        if command == 'ping':
+            result = ''
         # or it could be a user specified operation
         for t in self.command_:
             if command == t[0]:
