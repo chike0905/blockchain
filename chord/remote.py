@@ -40,11 +40,12 @@ class Remote(object):
     def id(self, offset = 0):
         return (self.address_.__hash__() + offset) % SIZE
 
-    def send(self, msg):
-        send_to_socket(self.socket_, msg)
+    def send(self, msg, res=False):
+        result = send_to_socket(self.socket_, msg, res)
         #self.socket_.sendall(msg.encode("utf-8") + b"\r\n")
         self.last_msg_send_ = msg
         # print("send: %s <%s>" % (msg, self.address_))
+        return result   
 
     def recv(self):
         # we use to have more complicated logic here
@@ -97,7 +98,7 @@ class Remote(object):
 
     @requires_connection
     def find_successor(self, id):
-        response = json.loads(self.send('find_successor %s' % id), True)
+        response = json.loads(self.send('find_successor %s' % id, True))
         #response = json.loads(self.recv())
         return Remote(Address(response[0], response[1]))
 
