@@ -41,7 +41,8 @@ class Remote(object):
         return (self.address_.__hash__() + offset) % SIZE
 
     def send(self, msg):
-        self.socket_.sendall(msg.encode("utf-8") + b"\r\n")
+        send_to_socket(self.socket_, msg)
+        #self.socket_.sendall(msg.encode("utf-8") + b"\r\n")
         self.last_msg_send_ = msg
         # print("send: %s <%s>" % (msg, self.address_))
 

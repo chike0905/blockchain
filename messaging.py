@@ -77,6 +77,7 @@ class Messaging:
             serversock.listen(10)
             clientsock, (client_address, client_port) = serversock.accept()
             rcvmsg = clientsock.recv(1024)
+            print(rcvmsg)
             rcvmsg = json.loads(rcvmsg.decode('utf-8'))
 
             if rcvmsg["type"] == "block":
