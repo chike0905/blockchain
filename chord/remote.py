@@ -55,7 +55,7 @@ class Remote(object):
     @requires_connection
     def ping(self):
         try:
-            self.send(b"")
+            self.send(b"",True)
             return True
         except socket.error:
             return False

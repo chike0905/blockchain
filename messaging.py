@@ -74,7 +74,7 @@ class Messaging:
             serversock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             serversock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             serversock.bind(("", 5555))
-            serversock.listen(10)
+            serversock.listen(100)
             clientsock, (client_address, client_port) = serversock.accept()
             rcvmsg = clientsock.recv(1024)
             rcvmsg = json.loads(rcvmsg.decode('utf-8'))
@@ -108,9 +108,9 @@ class Messaging:
                 rtnmsg = rtnmsg.encode("utf-8")
                 clientsock.send(rtnmsg)
             elif rcvmsg["type"] == "DHT":
-                print("dhtmsg:%s"%rcvmsg["body"])
+                #print("dhtmsg:%s"%rcvmsg["body"])
                 rtnmsg = self.dht.local_.run(rcvmsg["body"])
-                print("dhtrtnmsg:%s"%rtnmsg)
+                #print("dhtrtnmsg:%s"%rtnmsg)
                 clientsock.send(rtnmsg.encode("utf-8"))
             clientsock.close()
 
