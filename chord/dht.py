@@ -23,7 +23,7 @@ class DHT(object):
     self.daemons_['distribute_data'] = Daemon(self, 'distribute_data')
     self.daemons_['distribute_data'].start()
 
-    #self.local_.start()
+    self.local_.start()
 
   def shutdown(self):
     print("shutdown dht node")

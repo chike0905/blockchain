@@ -45,7 +45,7 @@ class Remote(object):
         #self.socket_.sendall(msg.encode("utf-8") + b"\r\n")
         self.last_msg_send_ = msg
         # print("send: %s <%s>" % (msg, self.address_))
-        return result   
+        return result
 
     def recv(self):
         # we use to have more complicated logic here
@@ -64,15 +64,15 @@ class Remote(object):
 
     @requires_connection
     def command(self, msg):
-        self.send(msg)
-        response = self.recv()
+        response = self.send(msg, True)
+        #response = self.recv()
         return response
 
     @requires_connection
     def get_successors(self):
-        self.send('get_successors')
+        response = self.send('get_successors', True)
 
-        response = self.recv()
+        #response = self.recv()
         # if our next guy doesn't have successors, return empty list
         if response == "":
             return []
@@ -81,16 +81,16 @@ class Remote(object):
 
     @requires_connection
     def successor(self):
-        self.send('get_successor')
+        response = self.send('get_successor', True)
 
-        response = json.loads(self.recv())
+        #response = json.loads(self.recv())
         return Remote(Address(response[0], response[1]))
 
     @requires_connection
     def predecessor(self):
-        self.send('get_predecessor')
+        response = self.send('get_predecessor',True)
 
-        response = self.recv()
+        #response = self.recv()
         if response == "":
             return None
         response = json.loads(response)
@@ -104,9 +104,9 @@ class Remote(object):
 
     @requires_connection
     def closest_preceding_finger(self, id):
-        self.send('closest_preceding_finger %s' % id)
+        response = self.send('closest_preceding_finger %s' % id, True)
 
-        response = json.loads(self.recv())
+        response = json.loads(response)
         return Remote(Address(response[0], response[1]))
 
     @requires_connection
