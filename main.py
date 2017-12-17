@@ -14,7 +14,7 @@ from IPython.terminal.embed import InteractiveShellEmbed
 
 
 class BlockchainService:
-    def __init__(self):
+    def __init__(self, inital_peer=None):
         # Make data dir
         if not os.path.isdir(".blockchain"):
             os.makedirs(".blockchain")
@@ -22,7 +22,7 @@ class BlockchainService:
         self.logger.log(20,"Start Blockchain Service")
         self.tx = Transaction(self.logger)
         self.bc = Blockchain(self.logger, self.tx)
-        self.msg = Messaging(self.logger, self.bc, self.tx)
+        self.msg = Messaging(self.logger, self.bc, self.tx, inital_peer)
 
     def init_logger(self):
         # logging
@@ -58,4 +58,4 @@ class BlockchainService:
             for peer in self.msg.peers:
                 self.msg.send(txmsg, peer)
 
-#embed()
+embed()
