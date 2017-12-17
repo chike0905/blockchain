@@ -108,7 +108,9 @@ class Messaging:
                 rtnmsg = rtnmsg.encode("utf-8")
                 clientsock.send(rtnmsg)
             elif rcvmsg["type"] == "DHT":
+                print("dhtmsg:%s"%rcvmsg["body"])
                 rtnmsg = self.dht.local_.run(rcvmsg["body"])
+                print("dhtrtnmsg:%s"%rtnmsg)
                 clientsock.send(rtnmsg.encode("utf-8"))
             clientsock.close()
 

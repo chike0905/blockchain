@@ -87,7 +87,6 @@ class Remote(object):
     @requires_connection
     def predecessor(self):
         response = self.send('get_predecessor',True)
-
         #response = self.recv()
         if response == "":
             return None

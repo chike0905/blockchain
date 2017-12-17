@@ -266,7 +266,6 @@ class Local(object):
         if command == 'find_successor':
             successor = self.find_successor(int(request))
             result = json.dumps((successor.address_.ip, successor.address_.port))
-            print(result)
         if command == 'closest_preceding_finger':
             closest = self.closest_preceding_finger(int(request))
             result = json.dumps((closest.address_.ip, closest.address_.port))
@@ -275,7 +274,6 @@ class Local(object):
             self.notify(Remote(npredecessor))
         if command == 'get_successors':
             result = json.dumps(self.get_successors())
-
         # or it could be a user specified operation
         for t in self.command_:
             if command == t[0]:
