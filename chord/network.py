@@ -14,7 +14,7 @@ def read_from_socket(s):
 
 # sends all on socket, adding "\r\n"
 def send_to_socket(s, msg, res=False):
-#   print "respond : %s" % msg
+    print("SEND : %s" % msg)
     msg = str(msg)
     msg = {"type":"DHT", "body":msg}
     msg = json.dumps(msg)
