@@ -14,7 +14,7 @@ from IPython.terminal.embed import InteractiveShellEmbed
 
 
 class BlockchainService:
-    def __init__(self, inital_peer=None):
+    def __init__(self, myaddr, inital_peer=None):
         # Make data dir
         if not os.path.isdir(".blockchain"):
             os.makedirs(".blockchain")
