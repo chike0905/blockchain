@@ -21,5 +21,4 @@ def send_to_socket(s, msg, res=False):
     s.sendall(msg.encode("utf-8"))
     if res:
         response = s.recv(1028)
-        print(response)
         return response.decode("utf-8")
