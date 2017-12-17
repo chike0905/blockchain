@@ -4,7 +4,7 @@ import hashlib
 import os
 
 class Blockchain:
-    def __init__(self, logger, txobj):
+    def __init__(self, logger, txobj, dht):
         self.chain = []
         # If chain data file exist, load data.
         if os.path.exists('.blockchain/chain.json'):
@@ -49,6 +49,7 @@ class Blockchain:
             self.chain.append(block)
             self.logger.log(20,"Append New Block(%s) to my chain" % block["blocknum"])
             self.chain_dump()
+            self.dht.set(block["blocknum"],block)
             return True, res
         else:
             # TODO: resolv confrict of chain -> difine consensus

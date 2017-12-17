@@ -7,6 +7,8 @@ from blockchain import Blockchain
 from transaction import Transaction
 from messaging import Messaging
 
+import chord.dht
+
 # For debug
 from IPython import embed
 from IPython.terminal.embed import InteractiveShellEmbed
@@ -21,8 +23,12 @@ class BlockchainService:
         self.logger = self.init_logger()
         self.logger.log(20,"Start Blockchain Service")
         self.tx = Transaction(self.logger)
-        self.bc = Blockchain(self.logger, self.tx)
-        self.msg = Messaging(self.logger, self.bc, self.tx, myaddr, inital_peer)
+        if inital_peer:
+            self.dht = chord.dht.DHT(chord.dht.Address(myaddr, "5555"), chord.dht.Address(inital_peer,"5555"))
+        else:
+            self.dht = chord.dht.DHT(chord.dht.Address(myaddr, "5555"))
+        self.bc = Blockchain(self.logger, self.tx, self.dht)
+        self.msg = Messaging(self.logger, self.bc, self.tx, self.dht)
         if rcv:
             self.msg.start_rcv()
 

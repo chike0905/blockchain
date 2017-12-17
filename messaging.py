@@ -5,18 +5,14 @@ import threading
 import re
 import hashlib
 
-import chord.dht
 
 class Messaging:
-    def __init__(self, logger, bcobj, txobj, myaddr, inital_peer):
+    def __init__(self, logger, bcobj, txobj, dhtobj):
         self.bc = bcobj
         self.tx = txobj
         self.peers = []
         self.logger = logger
-        if inital_peer:
-            self.dht = chord.dht.DHT(chord.dht.Address(myaddr, "5555"), chord.dht.Address(inital_peer,"5555"))
-        else:
-            self.dht = chord.dht.DHT(chord.dht.Address(myaddr, "5555"))
+        self.dht = dhtobj
 
     def add_peer(self, peeraddr):
         re_addr = re.compile("((?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))")
