@@ -97,8 +97,8 @@ class Remote(object):
 
     @requires_connection
     def find_successor(self, id):
-        self.send('find_successor %s' % id)
-        response = json.loads(self.recv())
+        response = json.loads(self.send('find_successor %s' % id), True)
+        #response = json.loads(self.recv())
         return Remote(Address(response[0], response[1]))
 
     @requires_connection

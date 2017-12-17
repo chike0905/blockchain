@@ -230,7 +230,7 @@ class Local(object):
                 return remote
         return self
 
-    def run(self, command):
+    def run(self, request):
         '''
         # should have a threadpool here :/
         # listen to incomming connections
@@ -289,7 +289,7 @@ class Local(object):
             self.shutdown_ = True
             self.log("shutdown started")
         '''
-        return reslut
+        return result
         #self.log("execution terminated")
 
     def register_command(self, cmd, callback):

@@ -109,8 +109,9 @@ class Messaging:
                 rtnmsg = rtnmsg.encode("utf-8")
                 clientsock.send(rtnmsg)
             elif rcvmsg["type"] == "DHT":
-                rtnmsg = self.dht.local.run(rcvmsg["body"])
-                clientsock.send(rtnmsg)
+                rtnmsg = self.dht.local_.run(rcvmsg["body"])
+                print(rtnmsg)
+                clientsock.send(rtnmsg.encode("utf-8"))
             clientsock.close()
 
     def check_new_block_for_chain(self,chain,block):
