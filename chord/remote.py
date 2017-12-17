@@ -52,12 +52,14 @@ class Remote(object):
         # and we might have again, so I'm not getting rid of this yet
         return read_from_socket(self.socket_)
 
-    @requires_connection
     def ping(self):
         try:
+            self.open_connection()
             self.send(b"",True)
+            self.close_connection()
             return True
-        except socket.error:
+        except Exception as e:
+            print(e.args)
             return False
 
     @requires_connection
