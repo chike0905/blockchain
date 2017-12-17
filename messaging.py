@@ -13,7 +13,10 @@ class Messaging:
         self.tx = txobj
         self.peers = []
         self.logger = logger
-        self.dht = dht.DHT(dht.Address(myaddr, "5555")dht.Address(inital_peer,"5555"))
+        if inital_peer:
+            self.dht = dht.DHT(dht.Address(myaddr, "5555"), dht.Address(inital_peer,"5555"))
+        else:
+            self.dht = dht.DHT(dht.Address(myaddr, "5555"))
 
     def add_peer(self, peeraddr):
         re_addr = re.compile("((?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))")
