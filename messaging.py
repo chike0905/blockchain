@@ -73,8 +73,8 @@ class Messaging:
             serversock.listen(100)
             clientsock, (client_address, client_port) = serversock.accept()
             rcvmsg = clientsock.recv(1024)
+            print("rcvmsg:%s" %rcvmsg)
             rcvmsg = json.loads(rcvmsg.decode('utf-8'))
-
             if rcvmsg["type"] == "block":
                 self.logger.log(20,"Receive Block from %s:%s" % (client_address,client_port))
                 res, resadd = self.bc.add_new_block(rcvmsg["body"])
