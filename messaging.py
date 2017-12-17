@@ -14,7 +14,7 @@ class Messaging:
         self.peers = []
         self.logger = logger
         if inital_peer:
-            self.dht = dht.DHT(dht.Address(myaddr, "5555"), dht.Address(inital_peer,"5555"))
+            self.dht = chord.dht.DHT(chord.dht.Address(myaddr, "5555"), chord.dht.Address(inital_peer,"5555"))
         else:
             self.dht = chord.dht.DHT(chord.dht.Address(myaddr, "5555"))
 
