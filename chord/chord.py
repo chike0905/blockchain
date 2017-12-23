@@ -91,8 +91,8 @@ class Local(object):
         # start the daemons
         #self.daemons_['run'] = Daemon(self, 'run')
         #self.daemons_['fix_fingers'] = Daemon(self, 'fix_fingers')
-        #self.daemons_['stabilize'] = Daemon(self, 'stabilize')
-        self.daemons_['update_successors'] = Daemon(self, 'update_successors')
+        self.daemons_['stabilize'] = Daemon(self, 'stabilize')
+        #self.daemons_['update_successors'] = Daemon(self, 'update_successors')
         for key in self.daemons_:
             self.daemons_[key].start()
 
@@ -198,7 +198,7 @@ class Local(object):
     def predecessor(self):
         return self.predecessor_
 
-    #@retry_on_socket_error(FIND_SUCCESSOR_RET)
+    @retry_on_socket_error(FIND_SUCCESSOR_RET)
     def find_successor(self, id):
         # The successor of a key can be us iff
         # - we have a pred(n)
@@ -210,7 +210,7 @@ class Local(object):
         node = self.find_predecessor(id)
         return node.successor()
 
-    #@retry_on_socket_error(FIND_PREDECESSOR_RET)
+    @retry_on_socket_error(FIND_PREDECESSOR_RET)
     def find_predecessor(self, id):
         self.log("find_predecessor")
         node = self

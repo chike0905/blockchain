@@ -56,6 +56,7 @@ class Remote(object):
         try:
             self.open_connection()
             self.send('ping',True)
+            print("ping done")
             self.close_connection()
             return True
         except Exception as e:
@@ -82,8 +83,7 @@ class Remote(object):
     @requires_connection
     def successor(self):
         response = self.send('get_successor', True)
-
-        #response = json.loads(self.recv())
+        response = json.loads(response)
         return Remote(Address(response[0], response[1]))
 
     @requires_connection
