@@ -73,7 +73,7 @@ class Messaging:
         while(True):
             clientsock, (client_address, client_port) = serversock.accept()
             rcvmsg = clientsock.recv(1024)
-            print("rcvmsg:%s" %rcvmsg)
+            #print("rcvmsg:%s" %rcvmsg)
             rcvmsg = json.loads(rcvmsg.decode('utf-8'))
             if rcvmsg["type"] == "block":
                 self.logger.log(20,"Receive Block from %s:%s" % (client_address,client_port))
@@ -104,9 +104,9 @@ class Messaging:
                 rtnmsg = rtnmsg.encode("utf-8")
                 clientsock.send(rtnmsg)
             elif rcvmsg["type"] == "DHT":
-                print("dhtmsg:%s"%rcvmsg["body"])
+                #print("dhtmsg:%s"%rcvmsg["body"])
                 rtnmsg = self.dht.local_.run(rcvmsg["body"])
-                print("dhtrtnmsg:%s"%rtnmsg)
+                #print("dhtrtnmsg:%s"%rtnmsg)
                 clientsock.send(rtnmsg.encode("utf-8"))
             clientsock.close()
 

@@ -102,11 +102,8 @@ class Local(object):
     @repeat_and_sleep(1)
     def jobs(self):
         assert self.fix_fingers()
-        print("done fix fingers")
         assert self.stabilize()
-        print("done stabilize")
         assert self.update_successors()
-        print("done update successors")
         return True
 
     def ping(self):
