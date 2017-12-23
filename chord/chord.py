@@ -89,7 +89,7 @@ class Local(object):
 
     def start(self):
         # start the daemons
-        self.daemons_['run'] = Daemon(self, 'run')
+        #self.daemons_['run'] = Daemon(self, 'run')
         self.daemons_['fix_fingers'] = Daemon(self, 'fix_fingers')
         self.daemons_['stabilize'] = Daemon(self, 'stabilize')
         self.daemons_['update_successors'] = Daemon(self, 'update_successors')
