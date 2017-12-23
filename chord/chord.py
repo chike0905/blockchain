@@ -90,13 +90,24 @@ class Local(object):
     def start(self):
         # start the daemons
         #self.daemons_['run'] = Daemon(self, 'run')
-        self.daemons_['fix_fingers'] = Daemon(self, 'fix_fingers')
-        self.daemons_['stabilize'] = Daemon(self, 'stabilize')
-        self.daemons_['update_successors'] = Daemon(self, 'update_successors')
+        #self.daemons_['fix_fingers'] = Daemon(self, 'fix_fingers')
+        #self.daemons_['stabilize'] = Daemon(self, 'stabilize')
+        #self.daemons_['update_successors'] = Daemon(self, 'update_successors')
+        self.daemons_['jobs'] = Daemon(self, 'jobs')
         for key in self.daemons_:
             self.daemons_[key].start()
 
         self.log("started")
+
+    @repeat_and_sleep(1)
+    def jobs(self):
+        assert self.fix_fingers()
+        print("done fix fingers")
+        assert self.stabilize()
+        print("done stabilize")
+        assert self.update_successors()
+        print("done update successors")
+        return True
 
     def ping(self):
         return True
@@ -115,7 +126,7 @@ class Local(object):
 
         self.log("joined")
 
-    @repeat_and_sleep(STABILIZE_INT)
+    #@repeat_and_sleep(STABILIZE_INT)
     @retry_on_socket_error(STABILIZE_RET)
     def stabilize(self):
         self.log("stabilize")
@@ -152,7 +163,7 @@ class Local(object):
            not self.predecessor().ping():
             self.predecessor_ = remote
 
-    @repeat_and_sleep(FIX_FINGERS_INT)
+    #@repeat_and_sleep(FIX_FINGERS_INT)
     def fix_fingers(self):
         # Randomly select an entry in finger_ table and update its value
         self.log("fix_fingers")
@@ -161,7 +172,7 @@ class Local(object):
         # Keep calling us
         return True
 
-    @repeat_and_sleep(UPDATE_SUCCESSORS_INT)
+    #@repeat_and_sleep(UPDATE_SUCCESSORS_INT)
     @retry_on_socket_error(UPDATE_SUCCESSORS_RET)
     def update_successors(self):
         self.log("update successor")
