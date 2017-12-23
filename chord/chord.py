@@ -89,10 +89,10 @@ class Local(object):
 
     def start(self):
         # start the daemons
-        #self.daemons_['run'] = Daemon(self, 'run')
-        #self.daemons_['fix_fingers'] = Daemon(self, 'fix_fingers')
+        self.daemons_['run'] = Daemon(self, 'run')
+        self.daemons_['fix_fingers'] = Daemon(self, 'fix_fingers')
         self.daemons_['stabilize'] = Daemon(self, 'stabilize')
-        #self.daemons_['update_successors'] = Daemon(self, 'update_successors')
+        self.daemons_['update_successors'] = Daemon(self, 'update_successors')
         for key in self.daemons_:
             self.daemons_[key].start()
 
@@ -254,7 +254,7 @@ class Local(object):
         request = request[len(command) + 1:]
 
         # defaul : "" = not respond anything
-        result = json.dumps("")
+        result = ""
         if command == 'get_successor':
             successor = self.successor()
             result = json.dumps((successor.address_.ip, successor.address_.port))
