@@ -4,7 +4,7 @@ import hashlib
 import os
 
 class Blockchain:
-    def __init__(self, logger, txobj, dht):
+    def __init__(self, logger, txobj, dhtobj):
         self.chain = []
         # If chain data file exist, load data.
         if os.path.exists('.blockchain/chain.json'):
@@ -19,6 +19,7 @@ class Blockchain:
             self.chain.append(self.genesis)
         self.logger = logger
         self.tx = txobj
+        self.dht = dhtobj
 
     def generate_block(self, score):
         # Make new Block include all tx in txpool
