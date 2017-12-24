@@ -24,9 +24,9 @@ class BlockchainService:
         self.logger.log(20,"Start Blockchain Service")
         self.tx = Transaction(self.logger)
         if inital_peer_addr:
-            self.dht = chord.dht.DHT(chord.dht.Address(myaddr, myport), chord.dht.Address(inital_peer_addr, inital_peer_port))
+            self.dht = chord.dht.DHT(self.logger, chord.dht.Address(myaddr, myport), chord.dht.Address(inital_peer_addr, inital_peer_port))
         else:
-            self.dht = chord.dht.DHT(chord.dht.Address(myaddr, myport))
+            self.dht = chord.dht.DHT(self.logger, chord.dht.Address(myaddr, myport))
         self.bc = Blockchain(self.logger, self.tx, self.dht)
         self.msg = Messaging(self.logger, self.bc, self.tx, self.dht)
         if rcv:

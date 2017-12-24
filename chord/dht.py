@@ -6,8 +6,9 @@ import hashlib
 
 # data structure that represents a distributed hash table
 class DHT(object):
-  def __init__(self, local_address, remote_address = None):
-    self.local_ = Local(local_address, remote_address)
+  def __init__(self, logger, local_address, remote_address = None):
+    self.local_ = Local(logger, local_address, remote_address)
+    self.logger = logger
     def set_wrap(msg):
       return self._set(msg)
     def get_wrap(msg):
@@ -26,7 +27,7 @@ class DHT(object):
     self.local_.start()
 
   def shutdown(self):
-    print("shutdown dht node")
+    self.logger.log(20, "shutdown dht node")
     self.local_.shutdown()
     self.shutdown_ = True
 
@@ -84,15 +85,15 @@ class DHT(object):
       for key in keys:
         if self.local_.predecessor() and \
            not inrange(int(hashlib.sha256(str(key).encode("utf-8")).hexdigest(),16), self.local_.predecessor().id(1), self.local_.id(1)):
-          print(int(hashlib.sha256(str(key).encode("utf-8")).hexdigest(),16))
+          #print(int(hashlib.sha256(str(key).encode("utf-8")).hexdigest(),16))
           try:
             node = self.local_.find_successor(int(hashlib.sha256(str(key).encode("utf-8")).hexdigest(),16))
             node.command("set %s" % json.dumps({'key':key, 'value':self.data_[key]}))
             # print "moved %s into %s" % (key, node.id())
             to_remove.append(key)
-            print("migrated")
+            self.logger.log(20,"migrated")
           except OSError:
-            print("error migrating")
+            self.logger.log(40,"error migrating")
             # we'll migrate it next time
             pass
       # remove all the keys we do not own any more

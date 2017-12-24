@@ -57,9 +57,10 @@ class Daemon(threading.Thread):
 
 # class representing a local peer
 class Local(object):
-    def __init__(self, local_address, remote_address = None):
+    def __init__(self, logger, local_address, remote_address = None):
+        self.logger = logger
         self.address_ = local_address
-        print("self id = %s" % self.id())
+        self.logger.log(20,"DHT:node is start. self id = %s" % self.id())
         self.shutdown_ = False
         # list of successors
         self.successors_ = []
@@ -96,15 +97,14 @@ class Local(object):
         self.daemons_['jobs'] = Daemon(self, 'jobs')
         for key in self.daemons_:
             self.daemons_[key].start()
-
-        self.log("started")
+        self.logger.log(20, "DHT:jobs started")
 
     @repeat_and_sleep(1)
     def jobs(self):
         if self.shutdown_:
             return False
         else:
-            print("do jobs")
+            self.logger.log("DHT:do jobs")
             assert self.fix_fingers()
             assert self.stabilize()
             assert self.update_successors()
@@ -125,12 +125,12 @@ class Local(object):
         else:
             self.finger_[0] = self
 
-        self.log("joined")
+        self.logger.log(20, "DHT:node joined")
 
     #@repeat_and_sleep(STABILIZE_INT)
     @retry_on_socket_error(STABILIZE_RET)
     def stabilize(self):
-        self.log("stabilize")
+        self.logger.log(20,"DHT:stabilize")
         suc = self.successor()
         # We may have found that x is our new successor iff
         # - x = pred(suc(n))
@@ -158,7 +158,7 @@ class Local(object):
         # - the new node r is in the range (pred(n), n)
         # OR
         # - our previous predecessor is dead
-        self.log("notify")
+        self.logger.log("DHT:notify")
         if self.predecessor() == None or \
            inrange(remote.id(), self.predecessor().id(1), self.id()) or \
            not self.predecessor().ping():
@@ -167,7 +167,7 @@ class Local(object):
     #@repeat_and_sleep(FIX_FINGERS_INT)
     def fix_fingers(self):
         # Randomly select an entry in finger_ table and update its value
-        self.log("fix_fingers")
+        self.logger.log(20, "DHT:fix_fingers")
         i = random.randrange(LOGSIZE - 1) + 1
         self.finger_[i] = self.find_successor(self.id(1<<i))
         # Keep calling us
@@ -176,7 +176,7 @@ class Local(object):
     #@repeat_and_sleep(UPDATE_SUCCESSORS_INT)
     @retry_on_socket_error(UPDATE_SUCCESSORS_RET)
     def update_successors(self):
-        self.log("update successor")
+        self.logger.log(20, "DHT:update successor")
         suc = self.successor()
         # if we are not alone in the ring, calculate
         if suc.id() != self.id():
@@ -189,7 +189,7 @@ class Local(object):
         return True
 
     def get_successors(self):
-        self.log("get_successors")
+        self.logger.log(20, "DHT:get_successors")
         return [(node.address_.ip, node.address_.port) for node in self.successors_[:N_SUCCESSORS-1]]
 
     def id(self, offset = 0):
@@ -203,7 +203,7 @@ class Local(object):
             if remote.ping():
                 self.finger_[0] = remote
                 return remote
-        print("No successor available, aborting")
+        self.logger.log(40, "DHT:No successor available, aborting")
         self.shutdown_ = True
         sys.exit(-1)
 
@@ -215,7 +215,7 @@ class Local(object):
         # The successor of a key can be us iff
         # - we have a pred(n)
         # - id is in (pred(n), n]
-        self.log("find_successor")
+        self.logger.log(20, "DHT:find_successor")
         if self.predecessor() and \
            inrange(id, self.predecessor().id(1), self.id(1)):
             return self
@@ -224,7 +224,7 @@ class Local(object):
 
     @retry_on_socket_error(FIND_PREDECESSOR_RET)
     def find_predecessor(self, id):
-        self.log("find_predecessor")
+        self.logger.log(20, "DHT:find_predecessor")
         node = self
         # If we are alone in the ring, we are the pred(id)
         if node.successor().id() == node.id():
@@ -236,7 +236,7 @@ class Local(object):
     def closest_preceding_finger(self, id):
         # first fingers in decreasing distance, then successors in
         # increasing distance.
-        self.log("closest_preceding_finger")
+        self.logger.log(20, "DHT:closest_preceding_finger")
         for remote in reversed(self.successors_ + self.finger_):
             if remote != None and inrange(remote.id(), self.id(1), id) and remote.ping():
                 return remote
