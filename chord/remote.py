@@ -65,7 +65,6 @@ class Remote(object):
     @requires_connection
     def command(self, msg):
         response = self.send(msg, True)
-        #response = self.recv()
         return response
 
     @requires_connection

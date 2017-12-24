@@ -6,20 +6,21 @@ import os
 class Blockchain:
     def __init__(self, logger, txobj, dhtobj):
         self.chain = []
+        self.logger = logger
+        self.tx = txobj
+        self.dht = dhtobj
         # If chain data file exist, load data.
         if os.path.exists('.blockchain/chain.json'):
             f = open('.blockchain/chain.json', 'r')
             chain = json.load(f)
             for key in chain.keys():
                 self.chain.append(chain[key])
+                self.dht.set(key, chain[key])
             f.close()
         else:
             # Make blockchain include genesis
             self.genesis = {"blocknum":0,"tx":[{"id":0, "body":"hello world!"}],"previous_hash":0}
             self.chain.append(self.genesis)
-        self.logger = logger
-        self.tx = txobj
-        self.dht = dhtobj
 
     def generate_block(self, score):
         # Make new Block include all tx in txpool
@@ -95,3 +96,7 @@ class Blockchain:
         savepath = '.blockchain/chain.json'
         with open(savepath, 'w') as outfile:
                 json.dump(chaindict, outfile, indent=4)
+
+    def get_block_from_dht(self,id):
+        block = self.dht.get(str(id))
+        return block
