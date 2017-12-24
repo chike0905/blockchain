@@ -59,54 +59,59 @@ class Messaging:
             return False, response
         return True, response
 
-    def start_rcv(self):
-        rcvthread = threading.Thread(target=self.receiver)
+    def start_rcv(self, addr, port):
+        rcvthread = threading.Thread(target=self.receiver, args=([addr,int(port)],))
         rcvthread.setDaemon(True)
         rcvthread.start()
         self.logger.log(20,"Start recieving message")
 
-    def receiver(self):
+    def receiver(self, host):
         serversock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         serversock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        serversock.bind(("", 5555))
+        serversock.bind((host[0], host[1]))
         serversock.listen(100)
         while(True):
             clientsock, (client_address, client_port) = serversock.accept()
             rcvmsg = clientsock.recv(1024)
             #print("rcvmsg:%s" %rcvmsg)
-            rcvmsg = json.loads(rcvmsg.decode('utf-8'))
-            if rcvmsg["type"] == "block":
-                self.logger.log(20,"Receive Block from %s:%s" % (client_address,client_port))
-                res, resadd = self.bc.add_new_block(rcvmsg["body"])
-                if not res:
-                    if resadd["code"] == 1:
-                        self.logger.log(20,"Receive Block from %s comes from different chain" % client_address)
-                        self.resolv_different_chain(rcvmsg["body"], client_address)
-                        self.resolv_orphan_block(rcvmsg["body"], client_address)
-                    elif resadd["code"] == 2:
-                        self.logger.log(20,"Receive Block from %s is orphan" % client_address)
-                        self.resolv_orphan_block(rcvmsg["body"], client_address)
-                    elif resadd["code"] == 3:
-                        self.logger.log(20,"Receive Block from %s has been in my chain" % client_address)
+            try:
+                rcvmsg = json.loads(rcvmsg.decode('utf-8'))
+                if rcvmsg["type"] == "block":
+                    self.logger.log(20,"Receive Block from %s:%s" % (client_address,client_port))
+                    res, resadd = self.bc.add_new_block(rcvmsg["body"])
+                    if not res:
+                        if resadd["code"] == 1:
+                            self.logger.log(20,"Receive Block from %s comes from different chain" % client_address)
+                            self.resolv_different_chain(rcvmsg["body"], client_address)
+                            self.resolv_orphan_block(rcvmsg["body"], client_address)
+                        elif resadd["code"] == 2:
+                            self.logger.log(20,"Receive Block from %s is orphan" % client_address)
+                            self.resolv_orphan_block(rcvmsg["body"], client_address)
+                        elif resadd["code"] == 3:
+                            self.logger.log(20,"Receive Block from %s has been in my chain" % client_address)
 
-            elif rcvmsg["type"] == "tx":
-               self.logger.log(20,"Receive Transaction from %s:%s" % (client_address, client_port))
-               self.tx.add_tx_pool(rcvmsg["body"])
+                elif rcvmsg["type"] == "tx":
+                   self.logger.log(20,"Receive Transaction from %s:%s" % (client_address, client_port))
+                   self.tx.add_tx_pool(rcvmsg["body"])
 
-            elif rcvmsg["type"] == "getblk":
-                self.logger.log(20,"Receive Get Block(%s) Request from %s:%s" % (str(rcvmsg["body"]["blocknum"]), client_address, client_port))
-                if len(self.bc.chain)-1 >= rcvmsg["body"]["blocknum"]:
-                    block = self.bc.chain[rcvmsg["body"]["blocknum"]]
-                    rtnmsg = {"code":0,"body":block}
-                else:
-                    rtnmsg = {"code":-1,"body":"index out of range"}
-                rtnmsg = json.dumps(rtnmsg)
-                rtnmsg = rtnmsg.encode("utf-8")
-                clientsock.send(rtnmsg)
-            elif rcvmsg["type"] == "DHT":
-                #print("dhtmsg:%s"%rcvmsg["body"])
-                rtnmsg = self.dht.local_.run(rcvmsg["body"])
-                #print("dhtrtnmsg:%s"%rtnmsg)
+                elif rcvmsg["type"] == "getblk":
+                    self.logger.log(20,"Receive Get Block(%s) Request from %s:%s" % (str(rcvmsg["body"]["blocknum"]), client_address, client_port))
+                    if len(self.bc.chain)-1 >= rcvmsg["body"]["blocknum"]:
+                        block = self.bc.chain[rcvmsg["body"]["blocknum"]]
+                        rtnmsg = {"code":0,"body":block}
+                    else:
+                        rtnmsg = {"code":-1,"body":"index out of range"}
+                    rtnmsg = json.dumps(rtnmsg)
+                    rtnmsg = rtnmsg.encode("utf-8")
+                    clientsock.send(rtnmsg)
+                elif rcvmsg["type"] == "DHT":
+                    #print("dhtmsg:%s"%rcvmsg["body"])
+                    rtnmsg = self.dht.local_.run(rcvmsg["body"])
+                    #print("dhtrtnmsg:%s"%rtnmsg)
+                    clientsock.send(rtnmsg.encode("utf-8"))
+            except json.decoder.JSONDecodeError:
+                rtnmsg = ""
+                self.logger.log(20,"Receive message decode error from %s:%s" % (client_address,client_port))
                 clientsock.send(rtnmsg.encode("utf-8"))
             clientsock.close()
 

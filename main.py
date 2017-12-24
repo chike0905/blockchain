@@ -16,21 +16,21 @@ from IPython.terminal.embed import InteractiveShellEmbed
 
 
 class BlockchainService:
-    def __init__(self, myaddr, inital_peer=None,rcv=True):
+    def __init__(self, myaddr, myport="5555", inital_peer_addr=None, inital_peer_port="5555", rcv=True):
         # Make data dir
         if not os.path.isdir(".blockchain"):
             os.makedirs(".blockchain")
         self.logger = self.init_logger()
         self.logger.log(20,"Start Blockchain Service")
         self.tx = Transaction(self.logger)
-        if inital_peer:
-            self.dht = chord.dht.DHT(chord.dht.Address(myaddr, "5555"), chord.dht.Address(inital_peer,"5555"))
+        if inital_peer_addr:
+            self.dht = chord.dht.DHT(chord.dht.Address(myaddr, myport), chord.dht.Address(inital_peer_addr, inital_peer_port))
         else:
-            self.dht = chord.dht.DHT(chord.dht.Address(myaddr, "5555"))
+            self.dht = chord.dht.DHT(chord.dht.Address(myaddr, myport))
         self.bc = Blockchain(self.logger, self.tx, self.dht)
         self.msg = Messaging(self.logger, self.bc, self.tx, self.dht)
         if rcv:
-            self.msg.start_rcv()
+            self.msg.start_rcv(myaddr, myport)
 
     def init_logger(self):
         # logging
