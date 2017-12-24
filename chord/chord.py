@@ -77,8 +77,8 @@ class Local(object):
 
     def shutdown(self):
         self.shutdown_ = True
-        self.socket_.shutdown(socket.SHUT_RDWR)
-        self.socket_.close()
+        #self.socket_.shutdown(socket.SHUT_RDWR)
+        #self.socket_.close()
 
     # logging function
     def log(self, info):
@@ -101,10 +101,14 @@ class Local(object):
 
     @repeat_and_sleep(1)
     def jobs(self):
-        assert self.fix_fingers()
-        assert self.stabilize()
-        assert self.update_successors()
-        return True
+        if self.shutdown_:
+            return False
+        else:
+            print("do jobs")
+            assert self.fix_fingers()
+            assert self.stabilize()
+            assert self.update_successors()
+            return True
 
     def ping(self):
         return True

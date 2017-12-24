@@ -66,4 +66,8 @@ class BlockchainService:
             for peer in self.msg.peers:
                 self.msg.send(txmsg, peer)
 
-embed()
+    def shutdown(self):
+        self.dht.shutdown()
+
+if __name__ == '__main__':
+    embed()

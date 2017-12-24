@@ -75,28 +75,31 @@ class DHT(object):
 
   @repeat_and_sleep(5)
   def distribute_data(self):
-    to_remove = []
-    # to prevent from RTE in case data gets updated by other thread
-    keys = list(self.data_.keys())
-    for key in keys:
-      if self.local_.predecessor() and \
-         not inrange(int(hashlib.sha256(str(key).encode("utf-8")).hexdigest(),16), self.local_.predecessor().id(1), self.local_.id(1)):
-        print(int(hashlib.sha256(str(key).encode("utf-8")).hexdigest(),16))
-        try:
-          node = self.local_.find_successor(int(hashlib.sha256(str(key).encode("utf-8")).hexdigest(),16))
-          node.command("set %s" % json.dumps({'key':key, 'value':self.data_[key]}))
-          # print "moved %s into %s" % (key, node.id())
-          to_remove.append(key)
-          print("migrated")
-        except OSError:
-          print("error migrating")
-          # we'll migrate it next time
-          pass
-    # remove all the keys we do not own any more
-    for key in to_remove:
-      del self.data_[key]
-    # Keep calling us
-    return True
+    if self.shutdown_:
+        return False
+    else:
+      to_remove = []
+      # to prevent from RTE in case data gets updated by other thread
+      keys = list(self.data_.keys())
+      for key in keys:
+        if self.local_.predecessor() and \
+           not inrange(int(hashlib.sha256(str(key).encode("utf-8")).hexdigest(),16), self.local_.predecessor().id(1), self.local_.id(1)):
+          print(int(hashlib.sha256(str(key).encode("utf-8")).hexdigest(),16))
+          try:
+            node = self.local_.find_successor(int(hashlib.sha256(str(key).encode("utf-8")).hexdigest(),16))
+            node.command("set %s" % json.dumps({'key':key, 'value':self.data_[key]}))
+            # print "moved %s into %s" % (key, node.id())
+            to_remove.append(key)
+            print("migrated")
+          except OSError:
+            print("error migrating")
+            # we'll migrate it next time
+            pass
+      # remove all the keys we do not own any more
+      for key in to_remove:
+        del self.data_[key]
+      # Keep calling us
+      return True
 
 def create_dht(lport):
   laddress = [Address('127.0.0.1', port) for port in lport]
