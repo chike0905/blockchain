@@ -2,6 +2,7 @@
 import json
 import hashlib
 import os
+from settings import *
 
 class Blockchain:
     def __init__(self, logger, txobj, dhtobj):
@@ -9,14 +10,19 @@ class Blockchain:
         self.logger = logger
         self.tx = txobj
         self.dht = dhtobj
-        # If chain data file exist, load data.
-        if os.path.exists('.blockchain/chain.json'):
-            f = open('.blockchain/chain.json', 'r')
-            chain = json.load(f)
-            for key in chain.keys():
-                self.chain.append(chain[key])
-                self.dht.set(key, chain[key])
-            f.close()
+        if CHAINDUMP:
+            # If chain data file exist, load data.
+            if os.path.exists('.blockchain/chain.json'):
+                f = open('.blockchain/chain.json', 'r')
+                chain = json.load(f)
+                for key in chain.keys():
+                    self.chain.append(chain[key])
+                    self.dht.set(key, chain[key])
+                f.close()
+            else:
+                # Make blockchain include genesis
+                self.genesis = {"blocknum":0,"tx":[{"id":0, "body":"hello world!"}],"previous_hash":0}
+                self.chain.append(self.genesis)
         else:
             # Make blockchain include genesis
             self.genesis = {"blocknum":0,"tx":[{"id":0, "body":"hello world!"}],"previous_hash":0}
@@ -90,11 +96,12 @@ class Blockchain:
         return msg
 
     def chain_dump(self):
-        chaindict = {}
-        for a in range(0,len(self.chain)):
-            chaindict[a] = self.chain[a]
-        savepath = '.blockchain/chain.json'
-        with open(savepath, 'w') as outfile:
+        if CHAINDUMP:
+            chaindict = {}
+            for a in range(0,len(self.chain)):
+                chaindict[a] = self.chain[a]
+            savepath = '.blockchain/chain.json'
+            with open(savepath, 'w') as outfile:
                 json.dump(chaindict, outfile, indent=4)
 
     def get_block_from_dht(self,id):

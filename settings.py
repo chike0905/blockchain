@@ -1,0 +1,2 @@
+# CONFIGFILE
+CHAINDUMP = False
