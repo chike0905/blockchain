@@ -104,7 +104,7 @@ class Local(object):
         if self.shutdown_:
             return False
         else:
-            self.logger.log("DHT:do jobs")
+            self.logger.log(20,"DHT:do jobs")
             assert self.fix_fingers()
             assert self.stabilize()
             assert self.update_successors()
@@ -158,7 +158,7 @@ class Local(object):
         # - the new node r is in the range (pred(n), n)
         # OR
         # - our previous predecessor is dead
-        self.logger.log("DHT:notify")
+        self.logger.log(20, "DHT:notify")
         if self.predecessor() == None or \
            inrange(remote.id(), self.predecessor().id(1), self.id()) or \
            not self.predecessor().ping():
