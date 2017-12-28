@@ -105,5 +105,9 @@ class Blockchain:
                 json.dump(chaindict, outfile, indent=4)
 
     def get_block_from_dht(self,id):
-        block = self.dht.get(str(id))
-        return block
+        block = self.dht.get(id)
+        if block:
+            return block
+        else:
+            self.logger.log(40, "Cannot get data from dht")
+            return None

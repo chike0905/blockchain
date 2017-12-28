@@ -35,9 +35,11 @@ class DHT(object):
     try:
       data = json.loads(request)
       # we have the key
-      return json.dumps({'status':'ok', 'data':self.get(data['key'])})
+      self.logger.log(20, "DHT:Get Data msg, return key(%s)" %data["key"])
+      return json.dumps({'status':'ok', 'data':self.get(int(data['key']))})
     except Exception:
       # key not present
+      self.logger.log(40, "DHT:Get Data msg, but don't have key(%s)" %data["key"])
       return json.dumps({'status':'failed'})
 
   def _set(self, request):
