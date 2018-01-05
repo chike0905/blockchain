@@ -10,6 +10,7 @@ class Blockchain:
         self.logger = logger
         self.tx = txobj
         self.dht = dhtobj
+        self.headblocknum = 0
         if CHAINDUMP:
             # If chain data file exist, load data.
             if os.path.exists('.blockchain/chain.json'):
@@ -22,11 +23,17 @@ class Blockchain:
             else:
                 # Make blockchain include genesis
                 self.genesis = {"blocknum":0,"tx":[{"id":0, "body":"hello world!"}],"previous_hash":0}
-                self.chain.append(self.genesis)
+                if STORAGE == "DHT":
+                    self.dht.set(0, self.genesis)
+                elif STORAGE == "local":
+                    self.chain.append(self.genesis)
         else:
             # Make blockchain include genesis
             self.genesis = {"blocknum":0,"tx":[{"id":0, "body":"hello world!"}],"previous_hash":0}
-            self.chain.append(self.genesis)
+            if STORAGE == "DHT":
+                self.dht.set(0, self.genesis)
+            elif STORAGE == "local":
+                self.chain.append(self.genesis)
 
     def generate_block(self, score):
         # Make new Block include all tx in txpool
@@ -34,7 +41,7 @@ class Blockchain:
         for txid in self.tx.txpool.keys():
             pool.append(self.tx.txpool[txid])
         blocknum = len(self.chain)
-        previous = json.dumps(self.chain[-1])
+        previous = json.dumps(self.get_block(self.headblocknum))
         previoushash = hashlib.sha256(previous.encode('utf-8')).hexdigest()
         block = {"blocknum":blocknum, "tx":pool, "previous_hash":previoushash, "score":score}
         self.tx.txpool = {}
@@ -54,39 +61,53 @@ class Blockchain:
             for tx in block["tx"]:
                 if tx["id"] in self.tx.txpool.keys():
                     self.tx.txpool.pop(tx["id"])
-            self.chain.append(block)
-            self.chain_dump()
-            self.dht.set(block["blocknum"],block)
+            # set block
+            if STORAGE == "DHT":
+                self.dht.set(block["blocknum"],block)
+            elif STORAGE == "local":
+                self.chain.append(block)
+
+            self.headblocknum = block["blocknum"]
             self.logger.log(20,"Append New Block(%s) to my chain" % block["blocknum"])
+            self.chain_dump()
             return True, res
         else:
             # TODO: resolv confrict of chain -> difine consensus
             return False, res
 
     def rm_last_block(self):
-        for tx in self.chain[-1]["tx"]:
+        lastblock = self.get_blcok(self.headblocknum)
+        for tx in lastblock["tx"]:
             self.tx.add_tx_pool(tx)
-        rmblocknum = self.chain[-1]["blocknum"]
-        self.chain.pop(-1)
-        self.logger.log(20,"Remove Block(%s) from my chain" % rmblocknum)
+
+        # set block
+        if STORAGE == "DHT":
+            # TODO: How remove block from DHT?
+            print("remove block from DHT is not implimented")
+        elif STORAGE == "local":
+            self.chain.pop(-1)
+
+        self.headblocknum = self.headblocknum - 1
+        self.logger.log(20,"Remove Block(%s) from my chain" % lastblock["blocknum"])
 
     def verify_block(self, block):
         # Verify Block
-        previous = json.dumps(self.chain[-1])
+        previousblock = self.get_block(self.headblocknum)
+        previous = json.dumps(previousblock)
         previoushash = hashlib.sha256(previous.encode('utf-8')).hexdigest()
-        if block["blocknum"] == self.chain[-1]["blocknum"]+1:
+        if block["blocknum"] == previousblock["blocknum"]+1:
             # new block
             if block["previous_hash"] == previoushash:
                 msg = {"result":"Checked Block has been verified","code":0}
             else:
                 msg = {"result":"Checked Block is from different chain","code":1}
-        elif self.chain[-1]["blocknum"] < block["blocknum"]:
+        elif previousblock["blocknum"] < block["blocknum"]:
             # orphan block
             msg = {"result":"Checked Block is orphan","code":2}
         else:
             # old block
             jsonblock = json.dumps(block)
-            myblock = json.dumps(self.chain[block["blocknum"]])
+            myblock = json.dumps(self.get_block(block["blocknum"]))
             if hashlib.sha256(jsonblock.encode('utf-8')).hexdigest() == hashlib.sha256(myblock.encode('utf-8')).hexdigest():
                 msg = {"result":"Checked Block has been in my chain","code":3}
             else:
@@ -95,6 +116,7 @@ class Blockchain:
         self.logger.log(20, msg["result"])
         return msg
 
+    #TODO: load all chain from DHT, and dump
     def chain_dump(self):
         if CHAINDUMP:
             chaindict = {}
@@ -103,6 +125,12 @@ class Blockchain:
             savepath = '.blockchain/chain.json'
             with open(savepath, 'w') as outfile:
                 json.dump(chaindict, outfile, indent=4)
+
+    def get_block(self,id):
+        if STORAGE == "DHT":
+            return self.get_block_from_dht(id)
+        elif STORAGE == "local":
+            return self.chain[id]
 
     def get_block_from_dht(self,id):
         block = self.dht.get(id)
