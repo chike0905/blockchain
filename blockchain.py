@@ -40,7 +40,7 @@ class Blockchain:
         pool = []
         for txid in self.tx.txpool.keys():
             pool.append(self.tx.txpool[txid])
-        blocknum = len(self.chain)
+        blocknum = self.headblocknum + 1
         previous = json.dumps(self.get_block(self.headblocknum))
         previoushash = hashlib.sha256(previous.encode('utf-8')).hexdigest()
         block = {"blocknum":blocknum, "tx":pool, "previous_hash":previoushash, "score":score}
