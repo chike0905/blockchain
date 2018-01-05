@@ -55,9 +55,9 @@ class Blockchain:
                 if tx["id"] in self.tx.txpool.keys():
                     self.tx.txpool.pop(tx["id"])
             self.chain.append(block)
-            self.logger.log(20,"Append New Block(%s) to my chain" % block["blocknum"])
             self.chain_dump()
             self.dht.set(block["blocknum"],block)
+            self.logger.log(20,"Append New Block(%s) to my chain" % block["blocknum"])
             return True, res
         else:
             # TODO: resolv confrict of chain -> difine consensus
@@ -109,5 +109,5 @@ class Blockchain:
         if block:
             return block
         else:
-            self.logger.log(40, "Cannot get data from dht")
+            self.logger.log(40, "Cannot get block(%s) from dht" %id)
             return None
