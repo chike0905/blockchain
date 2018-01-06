@@ -14,12 +14,12 @@ class Messaging:
         self.logger = logger
         self.dht = dhtobj
 
-    def add_peer(self, peeraddr):
+    def add_peer(self, peeraddr, peerport):
         re_addr = re.compile("((?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))")
         if re_addr.search(peeraddr):
-            self.peers.append(peeraddr)
-            print("Done add peer(%s)" % peeraddr)
-            self.logger.log(20,"Add peer(%s)" % peeraddr)
+            self.peers.append({"addr":peeraddr, "port":int(peerport)})
+            print("Done add peer(%s:%s)" % (peeraddr, peerport))
+            self.logger.log(20,"Add peer(%s:%s)" % (peeraddr, peerport))
             return True
         else:
             print("%s is not IPv4 address" % peeraddr)
@@ -41,20 +41,20 @@ class Messaging:
             print("this node not have peer")
         else:
             for peer in self.peers:
-                print("%s:%s" %(counter,peer))
+                print("%s - %s:%s" %(counter, peer["addr"], peer["port"]))
 
     def send(self, msg, dist):
-        self.logger.log(20,"Send %s message to %s" % (msg["type"], dist))
+        self.logger.log(20,"Send %s message to %s:%s" % (msg["type"], dist["addr"], dist["port"]))
         try:
             msg = json.dumps(msg)
             msg = msg.encode('utf-8')
             client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            client.connect((dist,5555))
+            client.connect((dist["addr"], dist["port"]))
             client.send(msg)
             response = client.recv(4096)
         except Exception as e:
             response = '{"result":"'+str(e.args)+'","code":-1}'
-            self.logger.log(30,"Error Send message to %s : %s" % (dist, e.args))
+            self.logger.log(30,"Error Send message to %s:%s - %s" % (dist["addr"], dist["port"], e.args))
             response = response.encode("utf-8")
             return False, response
         return True, response
@@ -108,6 +108,7 @@ class Messaging:
                     #print("dhtmsg:%s"%rcvmsg["body"])
                     rtnmsg = self.dht.local_.run(rcvmsg["body"])
                     #print("dhtrtnmsg:%s"%rtnmsg)
+
                     clientsock.send(rtnmsg.encode("utf-8"))
             except json.decoder.JSONDecodeError:
                 rtnmsg = ""
