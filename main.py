@@ -41,7 +41,7 @@ class BlockchainService:
                 self.msg.add_peer(inital_peer_addr, inital_peer_port)
             else:
                 self.bc = Blockchain(self.logger, self.tx)
-                self.msg = Messaging(self.logger, self.bc, self.tx)
+                self.msg = Messaging(myaddr, myport, self.logger, self.bc, self.tx)
 
         if rcv:
             self.msg.start_rcv(myaddr, myport)
