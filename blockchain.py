@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 import json
 import hashlib
+import threading
 import os
+import time
 from settings import *
 
 class Blockchain:
@@ -36,6 +38,20 @@ class Blockchain:
                 self.dht.set(0, self.genesis)
             elif STORAGE == "local":
                 self.chain.append(self.genesis)
+
+        updateheadthread = threading.Thread(target=self.update_headblocknum,)
+        updateheadthread.setDaemon(True)
+        updateheadthread.start()
+
+    def update_headblocknum(self):
+        while(True):
+            tmp = self.headblocknum
+            while(self.get_block(tmp)):
+                if self.headblocknum < tmp:
+                    self.headblocknum = tmp
+                    self.logger.log(20,"Update head block num(%s)" % str(tmp))
+                tmp = tmp + 1
+            time.sleep(3)
 
     def generate_block(self, score):
         # Make new Block include all tx in txpool
