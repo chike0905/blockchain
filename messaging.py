@@ -142,7 +142,7 @@ class Messaging:
                     self.bc.add_new_block(block)
                 break
 
-    def resolv_orphan_block(self, block, client_address, client_port):
+    def resolv_orphan_block(self, block, dist):
         for blocknum in range(len(self.bc.chain), block["blocknum"]+1):
             res, resmsg = self.send({"type":"getblk", "body":{"blocknum":blocknum}}, dist)
             resmsg = json.loads(resmsg.decode('utf-8'))
