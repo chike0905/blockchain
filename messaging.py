@@ -145,7 +145,7 @@ class Messaging:
 
     def resolv_orphan_block(self, block, dist):
         dist["port"] = int(dist["port"])
-        for blocknum in range(self.bc.headblocknum-1, block["blocknum"]+1):
+        for blocknum in range(self.bc.headblocknum+1, block["blocknum"]+1):
             res, resmsg = self.send({"type":"getblk", "body":{"blocknum":blocknum}}, dist)
             resmsg = json.loads(resmsg.decode('utf-8'))
             self.logger.log(20,"Get Block(%s) from %s:%s" %(str(blocknum), dist["addr"], dist["port"]))
