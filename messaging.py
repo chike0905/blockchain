@@ -146,7 +146,7 @@ class Messaging:
         for blocknum in range(len(self.bc.chain), block["blocknum"]+1):
             res, resmsg = self.send({"type":"getblk", "body":{"blocknum":blocknum}}, dist)
             resmsg = json.loads(resmsg.decode('utf-8'))
-            self.logger.log(20,"Get Block(%s) from %s" %(str(blocknum), client_address))
+            self.logger.log(20,"Get Block(%s) from %s:%s" %(str(blocknum), dist["addr"], dist["port"]))
             res, rescode = self.bc.add_new_block(resmsg["body"])
             if not res:
                 break;
