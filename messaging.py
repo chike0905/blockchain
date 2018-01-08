@@ -138,14 +138,14 @@ class Messaging:
             block = resmsg["body"]
             if self.check_new_block_for_chain(self.bc.chain[0:block["blocknum"]], block):
                 if block["score"] > self.bc.chain[block["blocknum"]]["score"]:
-                    for rmblocknum in range(blocknum,len(self.bc.chain)):
+                    for rmblocknum in range(blocknum,self.bc.headblocknum+1):
                         self.bc.rm_last_block()
                     self.bc.add_new_block(block)
                 break
 
     def resolv_orphan_block(self, block, dist):
         dist["port"] = int(dist["port"])
-        for blocknum in range(len(self.bc.chain), block["blocknum"]+1):
+        for blocknum in range(self.bc.headblocknum-1, block["blocknum"]+1):
             res, resmsg = self.send({"type":"getblk", "body":{"blocknum":blocknum}}, dist)
             resmsg = json.loads(resmsg.decode('utf-8'))
             self.logger.log(20,"Get Block(%s) from %s:%s" %(str(blocknum), dist["addr"], dist["port"]))
