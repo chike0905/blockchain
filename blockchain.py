@@ -159,7 +159,10 @@ class Blockchain:
         if STORAGE == "DHT":
             return self.get_block_from_dht(id)
         elif STORAGE == "local":
-            return self.chain[id]
+            if len(self.chain)-1 < id:
+                return None
+            else:
+                return self.chain[id]
 
     def get_block_from_dht(self,id):
         block = self.dht.get(id)
