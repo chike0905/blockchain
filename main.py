@@ -6,6 +6,7 @@ import json
 from blockchain import Blockchain
 from transaction import Transaction
 from messaging import Messaging
+from settings import *
 
 import chord.dht
 
@@ -23,15 +24,24 @@ class BlockchainService:
         self.logger = self.init_logger()
         self.logger.log(20,"Start Blockchain Service")
         self.tx = Transaction(self.logger)
-        if inital_peer_addr:
-            self.dht = chord.dht.DHT(self.logger, chord.dht.Address(myaddr, myport), chord.dht.Address(inital_peer_addr, inital_peer_port))
-            self.bc = Blockchain(self.logger, self.tx, self.dht)
-            self.msg = Messaging(self.logger, self.bc, self.tx, self.dht)
-            self.msg.add_peer(inital_peer_addr, inital_peer_port)
-        else:
-            self.dht = chord.dht.DHT(self.logger, chord.dht.Address(myaddr, myport))
-            self.bc = Blockchain(self.logger, self.tx, self.dht)
-            self.msg = Messaging(self.logger, self.bc, self.tx, self.dht)
+        if STORAGE == "DHT":
+            if inital_peer_addr:
+                self.dht = chord.dht.DHT(self.logger, chord.dht.Address(myaddr, myport), chord.dht.Address(inital_peer_addr, inital_peer_port))
+                self.bc = Blockchain(self.logger, self.tx, self.dht)
+                self.msg = Messaging(self.logger, self.bc, self.tx, self.dht)
+                self.msg.add_peer(inital_peer_addr, inital_peer_port)
+            else:
+                self.dht = chord.dht.DHT(self.logger, chord.dht.Address(myaddr, myport))
+                self.bc = Blockchain(self.logger, self.tx, self.dht)
+                self.msg = Messaging(self.logger, self.bc, self.tx, self.dht)
+        elif STORAGE == "local":
+            if inital_peer_addr:
+                self.bc = Blockchain(self.logger, self.tx)
+                self.msg = Messaging(self.logger, self.bc, self.tx)
+                self.msg.add_peer(inital_peer_addr, inital_peer_port)
+            else:
+                self.bc = Blockchain(self.logger, self.tx)
+                self.msg = Messaging(self.logger, self.bc, self.tx)
 
         if rcv:
             self.msg.start_rcv(myaddr, myport)

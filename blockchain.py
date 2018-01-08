@@ -7,7 +7,7 @@ import time
 from settings import *
 
 class Blockchain:
-    def __init__(self, logger, txobj, dhtobj):
+    def __init__(self, logger, txobj, dhtobj=None):
         self.chain = []
         self.logger = logger
         self.tx = txobj

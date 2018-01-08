@@ -7,7 +7,7 @@ import hashlib
 
 
 class Messaging:
-    def __init__(self, logger, bcobj, txobj, dhtobj):
+    def __init__(self, logger, bcobj, txobj, dhtobj=None):
         self.bc = bcobj
         self.tx = txobj
         self.peers = []
