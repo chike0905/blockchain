@@ -131,6 +131,7 @@ class Messaging:
             return False
 
     def resolv_different_chain(self, rcvblock, dist):
+        dist["port"] = int(dist["port"])
         for blocknum in reversed(range(1,rcvblock["blocknum"])):
             res, resmsg = self.send({"type":"getblk", "body":{"blocknum":blocknum}}, dist)
             resmsg = json.loads(resmsg.decode('utf-8'))
@@ -143,6 +144,7 @@ class Messaging:
                 break
 
     def resolv_orphan_block(self, block, dist):
+        dist["port"] = int(dist["port"])
         for blocknum in range(len(self.bc.chain), block["blocknum"]+1):
             res, resmsg = self.send({"type":"getblk", "body":{"blocknum":blocknum}}, dist)
             resmsg = json.loads(resmsg.decode('utf-8'))
