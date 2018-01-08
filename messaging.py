@@ -81,14 +81,17 @@ class Messaging:
                     res, resadd = self.bc.add_new_block(rcvmsg["body"])
                     if not res:
                         if resadd["code"] == 1:
-                            self.logger.log(20,"Receive Block from %s comes from different chain" % client_address)
-                            self.resolv_different_chain(rcvmsg["body"], client_address)
+                            self.logger.log(20,"Receive Block from %s:%s comes from different chain" % (client_address, client_port))
+                            self.resolv_different_chain(rcvmsg["body"], client_address, client_port)
                             self.resolv_orphan_block(rcvmsg["body"], client_address)
                         elif resadd["code"] == 2:
-                            self.logger.log(20,"Receive Block from %s is orphan" % client_address)
-                            self.resolv_orphan_block(rcvmsg["body"], client_address)
+                            self.logger.log(20,"Receive Block from %s:%s is orphan" % (client_address, client_port))
+                            self.resolv_orphan_block(rcvmsg["body"], client_address, client_port)
                         elif resadd["code"] == 3:
-                            self.logger.log(20,"Receive Block from %s has been in my chain" % client_address)
+                            self.logger.log(20,"Receive Block from %s:%s has been in my chain" % (client_address, client_port))
+                        elif resadd["code"] == 5:
+                            self.logger.log(20,"Receive Block from %s:%s has been in my storage" % (client_address, client_port))
+
 
                 elif rcvmsg["type"] == "tx":
                    self.logger.log(20,"Receive Transaction from %s:%s" % (client_address, client_port))
@@ -124,9 +127,9 @@ class Messaging:
         else:
             return False
 
-    def resolv_different_chain(self, rcvblock, client_address):
+    def resolv_different_chain(self, rcvblock, client_address, client_port):
         for blocknum in reversed(range(1,rcvblock["blocknum"])):
-            res, resmsg = self.send({"type":"getblk", "body":{"blocknum":blocknum}}, client_address)
+            res, resmsg = self.send({"type":"getblk", "body":{"blocknum":blocknum}}, {"addr":client_address, "port":client_port})
             resmsg = json.loads(resmsg.decode('utf-8'))
             block = resmsg["body"]
             if self.check_new_block_for_chain(self.bc.chain[0:block["blocknum"]], block):
@@ -136,9 +139,9 @@ class Messaging:
                     self.bc.add_new_block(block)
                 break
 
-    def resolv_orphan_block(self, block, client_address):
+    def resolv_orphan_block(self, block, client_address, client_port):
         for blocknum in range(len(self.bc.chain), block["blocknum"]+1):
-            res, resmsg = self.send({"type":"getblk", "body":{"blocknum":blocknum}}, client_address)
+            res, resmsg = self.send({"type":"getblk", "body":{"blocknum":blocknum}}, {"addr":client_address, "port":client_port})
             resmsg = json.loads(resmsg.decode('utf-8'))
             self.logger.log(20,"Get Block(%s) from %s" %(str(blocknum), client_address))
             res, rescode = self.bc.add_new_block(resmsg["body"])

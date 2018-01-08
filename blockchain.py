@@ -89,6 +89,9 @@ class Blockchain:
             self.logger.log(20,"Append New Block(%s) to my chain" % block["blocknum"])
             self.chain_dump()
             return True, res
+        elif res["code"] == 5:
+            self.headblocknum = block["blocknum"]
+            return True, res
         else:
             # TODO: resolv confrict of chain -> difine consensus
             return False, res
@@ -116,7 +119,16 @@ class Blockchain:
         if block["blocknum"] == previousblock["blocknum"]+1:
             # new block
             if block["previous_hash"] == previoushash:
-                msg = {"result":"Checked Block has been verified","code":0}
+                myblock = self.get_block(block["blocknum"])
+                if not myblock:
+                    msg = {"result":"Checked Block has been verified","code":0}
+                else:
+                    myblockjson = json.dumps(myblock)
+                    blockjson = json.dumps(block)
+                    if hashlib.sha256(myblockjson.encode('utf-8')).hexdigest() == hashlib.sha256(blockjson.encode('utf-8')).hexdigest():
+                        msg = {"result":"Checked Block has been in storage","code":5}
+                    else:
+                        msg = {"result":"Checked Block is from different chain","code":1}
             else:
                 msg = {"result":"Checked Block is from different chain","code":1}
         elif previousblock["blocknum"] < block["blocknum"]:
