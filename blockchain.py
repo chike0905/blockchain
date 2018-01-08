@@ -17,8 +17,10 @@ class Blockchain:
                 f = open('.blockchain/chain.json', 'r')
                 chain = json.load(f)
                 for key in chain.keys():
-                    self.chain.append(chain[key])
-                    self.dht.set(key, chain[key])
+                    if STORAGE == "DHT":
+                        self.dht.set(key, chain[key])
+                    elif STORAGE == "local":
+                        self.chain.append(chain[key])
                 f.close()
             else:
                 # Make blockchain include genesis
@@ -116,12 +118,11 @@ class Blockchain:
         self.logger.log(20, msg["result"])
         return msg
 
-    #TODO: load all chain from DHT, and dump
     def chain_dump(self):
         if CHAINDUMP:
             chaindict = {}
-            for a in range(0,len(self.chain)):
-                chaindict[a] = self.chain[a]
+            for a in range(0,self.headblcoknum):
+                chaindict[a] = self.get_block_from_dht[a]
             savepath = '.blockchain/chain.json'
             with open(savepath, 'w') as outfile:
                 json.dump(chaindict, outfile, indent=4)
