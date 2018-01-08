@@ -99,8 +99,8 @@ class Messaging:
 
                 elif rcvmsg["type"] == "getblk":
                     self.logger.log(20,"Receive Get Block(%s) Request from %s:%s" % (str(rcvmsg["body"]["blocknum"]), client_address, client_port))
-                    if len(self.bc.chain)-1 >= rcvmsg["body"]["blocknum"]:
-                        block = self.bc.chain[rcvmsg["body"]["blocknum"]]
+                    if self.bc.headblocknum >= rcvmsg["body"]["blocknum"]:
+                        block = self.bc.get_block(rcvmsg["body"]["blocknum"])
                         rtnmsg = {"code":0,"body":block}
                     else:
                         rtnmsg = {"code":-1,"body":"index out of range"}
