@@ -33,7 +33,7 @@ class BlockchainService:
             else:
                 self.dht = chord.dht.DHT(self.logger, chord.dht.Address(myaddr, myport))
                 self.bc = Blockchain(self.logger, self.tx, self.dht)
-                self.msg = Messaging(self.logger, self.bc, self.tx, self.dht)
+                self.msg = Messaging(myaddr, myport, self.logger, self.bc, self.tx, self.dht)
         elif STORAGE == "local":
             if inital_peer_addr:
                 self.bc = Blockchain(self.logger, self.tx)
