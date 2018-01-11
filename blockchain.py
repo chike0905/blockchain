@@ -97,7 +97,7 @@ class Blockchain:
             return False, res
 
     def rm_last_block(self):
-        lastblock = self.get_blcok(self.headblocknum)
+        lastblock = self.get_block(self.headblocknum)
         for tx in lastblock["tx"]:
             self.tx.add_tx_pool(tx)
 
@@ -149,11 +149,17 @@ class Blockchain:
     def chain_dump(self):
         if CHAINDUMP:
             chaindict = {}
-            for a in range(0,self.headblcoknum):
-                chaindict[a] = self.get_block_from_dht[a]
+            for a in range(0,self.headblocknum):
+                chaindict[a] = self.get_block(a)
             savepath = '.blockchain/chain.json'
             with open(savepath, 'w') as outfile:
                 json.dump(chaindict, outfile, indent=4)
+
+    def get_chain(self, until):
+        chain = []
+        for a in range(0,until+1):
+            chain.append(self.get_block(a))
+        return chain
 
     def get_block(self,id):
         if STORAGE == "DHT":
