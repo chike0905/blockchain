@@ -6,7 +6,7 @@ This is Blockchain for my implement training.
 
 # Sequence
 ## Generate Block
-![Generate Block](http://web.sfc.wide.ad.jp/~chike/image/Blockchain_genarate_Block_sequence.png)
+![Generate Block](https://raw.githubusercontent.com/chike0905/blockchain/images/uml/seq_generate_block.png)
 
 ## Get New Block
-![Get New Block](http://web.sfc.wide.ad.jp/~chike/image/Blockchain_getblock_sequence.png)
+![Get New Block](https://raw.githubusercontent.com/chike0905/blockchain/images/uml/seq_get_block.png)
