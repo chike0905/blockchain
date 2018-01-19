@@ -9,9 +9,20 @@ class MessageManager:
         self.peers = []
 
     def send(self, msgtype, msgbody, dist, res=True):
+        msg = {"type": msgtype, "body":msgbody, "from":{"addr":self.addr, "port":self.port}}
+        msg = json.dumps(msg)
+        msg = msg.encode('utf-8')
+        client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client.connect((dist["addr"], dist["port"]))
+        client.send(msg)
+        if res:
+            response = client.recv(4096)
+        else:
+            response = None
+        '''
         try:
-            msg["from"] = {"addr":self.addr, "port":self.port}
             msg = json.dumps({"type": msgtype, "body":msgbody})
+            msg["from"] = {"addr":self.addr, "port":self.port}
             msg = msg.encode('utf-8')
             client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             client.connect((dist["addr"], dist["port"]))
@@ -22,9 +33,9 @@ class MessageManager:
                 response = None
         except Exception as e:
             response = '{"result":"'+str(e.args)+'","code":-1}'
-            self.logger.log(30,"Error Send message to %s:%s - %s" % (dist["addr"], dist["port"], e.args))
             response = response.encode("utf-8")
             return False, response
+        '''
         return True, response
 
     def recever(self):
@@ -35,7 +46,7 @@ class MessageManager:
 
         clientsock, (client_address, client_port) = serversock.accept()
         rcvmsg = clientsock.recv(1024)
-        rcvmsg = rcvmsg.encode("utf-8")
+        rcvmsg = rcvmsg.decode("utf-8")
 
         print(rcvmsg)
 
