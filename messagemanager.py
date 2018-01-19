@@ -5,7 +5,7 @@ import json
 class MessageManager:
     def __init__(self, addr, port):
         self.addr = addr
-        self.port = port
+        self.port = str(port)
         self.peers = []
 
     def send(self, msgtype, msgbody, dist, res=True):
