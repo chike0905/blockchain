@@ -30,7 +30,7 @@ class MessageManager:
     def recever(self):
         serversock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         serversock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        serversock.bind((host[0], host[1]))
+        serversock.bind((self.addr, self.port))
         serversock.listen(100)
 
         clientsock, (client_address, client_port) = serversock.accept()
