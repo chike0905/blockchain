@@ -123,6 +123,8 @@ class Blockchain:
                 if not myblock:
                     msg = {"result":"Checked Block has been verified","code":0}
                 else:
+                    # TODO don't recognize my storage block upper headblocknum
+                    # TODO ここからやる！！！！
                     myblockjson = json.dumps(myblock)
                     blockjson = json.dumps(block)
                     if hashlib.sha256(myblockjson.encode('utf-8')).hexdigest() == hashlib.sha256(blockjson.encode('utf-8')).hexdigest():

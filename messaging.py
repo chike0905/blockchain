@@ -122,7 +122,7 @@ class Messaging:
                 clientsock.send(rtnmsg.encode("utf-8"))
             clientsock.close()
 
-    def check_new_block_for_chain(self,chain,block):
+    def check_new_block_for_chain(self, chain, block):
         previous = json.dumps(chain[-1])
         previoushash = hashlib.sha256(previous.encode('utf-8')).hexdigest()
         if block["previous_hash"] == previoushash:
@@ -136,8 +136,9 @@ class Messaging:
             res, resmsg = self.send({"type":"getblk", "body":{"blocknum":blocknum}}, dist)
             resmsg = json.loads(resmsg.decode('utf-8'))
             block = resmsg["body"]
-            if self.check_new_block_for_chain(self.bc.chain[0:block["blocknum"]], block):
-                if block["score"] > self.bc.chain[block["blocknum"]]["score"]:
+            chain = self.bc.get_chain(block["blocknum"])
+            if self.check_new_block_for_chain(chain[:-1], block):
+                if block["score"] > chain[block["blocknum"]]["score"]:
                     for rmblocknum in range(blocknum,self.bc.headblocknum+1):
                         self.bc.rm_last_block()
                     self.bc.add_new_block(block)
