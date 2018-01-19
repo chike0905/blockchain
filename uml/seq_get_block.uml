@@ -3,8 +3,10 @@ skinparam shadowing false
 skinparam monochrome true
 title Blockchain: Get new block sequence
 
-Node -> Message_Manager: Send New Block
-Message_Manager -> Chain_Manager: New Block
+Other_Node -> Message_Manager: Send New Block Message
+Message_Manager -> Node_Manager: Send Recieve Message
+Node_Manager -> Node_Manager: Check Message Type
+Node_Manager -> Chain_Manager: New Block
 activate Chain_Manager
 Chain_Manager -> Block_Verifier: Verify New Block
 activate Block_Verifier
@@ -25,7 +27,7 @@ else Fail
       Chain_Manager -> Message_Manager: Request Get Block
       activate Message_Manager
       Message_Manager -> Node: Get Block Mssage
-      Node --> Message_Manager: Block
+      Other_Node --> Message_Manager: Block
       Message_Manager  --> Chain_Manager: Block
       deactivate Message_Manager
       Chain_Manager -> Block_Verifier: Verify Block
