@@ -26,7 +26,7 @@ else Fail
     loop from Last Block in Storage to New Block
       Chain_Manager -> Message_Manager: Request Get Block
       activate Message_Manager
-      Message_Manager -> Node: Get Block Mssage
+      Message_Manager -> Other_Node: Get Block Mssage
       Other_Node --> Message_Manager: Block
       Message_Manager  --> Chain_Manager: Block
       deactivate Message_Manager
