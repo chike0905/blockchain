@@ -1,0 +1,24 @@
+@startuml
+Node_Manager <|-- Chain_Manager
+Node_Manager <|-- Message_Manager
+Chain_Manager <|-- Storage
+Chain_Manager <|-- TX_Manager
+
+Node_Manager : generate_block()
+
+Message_Manager : send()
+Message_Manager : add_peer()
+Message_Manager : rm_peer()
+Message_Manager : reciever()
+
+Chain_Manager : make_new_block()
+Chain_Manager : verify_block()
+
+Storage : get()
+Storage : set()
+
+TX_Manager : set()
+TX_Manager : get()
+TX_Manager : get_all()
+TX_Manager : remove()
+@enduml
