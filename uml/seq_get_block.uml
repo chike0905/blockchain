@@ -1,0 +1,65 @@
+@startuml
+skinparam shadowing false
+skinparam monochrome true
+title Blockchain: Get new block sequence
+
+Node -> Message_Manager: Send New Block
+Message_Manager -> Chain_Manager: New Block
+activate Chain_Manager
+Chain_Manager -> Block_Verifier: Verify New Block
+activate Block_Verifier
+Block_Verifier -> Storage:Read Last Block
+activate Storage
+Storage --> Block_Verifier: Last Block
+deactivate Storage
+Block_Verifier -> Chain_Manager: Pass/Fail
+deactivate Block_Verifier
+alt Pass
+  Chain_Manager -> TX_Manager: Remove TXs in New Block from TX Pool
+  Chain_Manager -> Storage: Save Block
+else Fail
+  Chain_Manager -> Chain_Manager: Check stuation
+  activate Chain_Manager
+  alt orphan
+    loop from Last Block in Storage to New Block
+      Chain_Manager -> Message_Manager: Request Get Block
+      activate Message_Manager
+      Message_Manager -> Node: Get Block Mssage
+      Node --> Message_Manager: Block
+      Message_Manager  --> Chain_Manager: Block
+      deactivate Message_Manager
+      Chain_Manager -> Block_Verifier: Verify Block
+      Block_Verifier -> Chain_Manager: Pass/Fail
+      alt Pass
+        Chain_Manager -> TX_Manager: Remove TXs in New Block from TX Pool
+        Chain_Manager -> Storage: Save Block
+      else Fail
+        Chain_Manager -> Chain_Manager: Take as a Conflict
+      end
+    end
+  else old
+    Chain_Manager -> Storage: Read Block
+    Storage --> Chain_Manager: Block
+    alt same Block in storage
+      note over Chain_Manager:Do nothing
+    else different Block in storage
+      Chain_Manager -> Chain_Manager: Take as a conflict
+    end
+  else conflict
+    Chain_Manager -> Storage: Get Last Block
+    activate Storage
+    Storage --> Chain_Manager :Last Block
+    deactivate Storage
+    Chain_Manager -> Chain_Manager: Comparison Score of Block\nin Storage and new Block
+    alt Block in Storage is correct
+      note over Chain_Manager:Do nothing
+    else New Block is correct
+      Chain_Manager -> TX_Manager: Save TXs in Last Block in TX Pool
+      Chain_Manager -> Storage: Remove Last Block
+      Chain_Manager -> TX_Manager: Remove TXs in New Block from TX Pool
+      Chain_Manager -> Storage: Save New Block
+    end
+  end
+end
+deactivate Chain_Manager
+@enduml
