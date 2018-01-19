@@ -1,4 +1,7 @@
 @startuml
+skinparam shadowing false
+skinparam monochrome true
+
 Node_Manager <|-- Chain_Manager
 Node_Manager <|-- Message_Manager
 Chain_Manager <|-- Storage
