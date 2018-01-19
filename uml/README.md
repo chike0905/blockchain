@@ -1,9 +1,9 @@
 # UML
 - UML by plantuml
 
-## How to get pdf
+## How to get pdf from .uml
 ```
-sh ./umltopdf.sh file
+sh ./umltopdf.sh filename
 ```
 
 ## Enviroment
