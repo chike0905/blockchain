@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 import os
+import sys
 import json
 
 from blockchain import Blockchain
@@ -9,11 +10,6 @@ from messaging import Messaging
 from settings import *
 
 import chord.dht
-
-# For debug
-from IPython import embed
-from IPython.terminal.embed import InteractiveShellEmbed
-
 
 
 class BlockchainService:
@@ -84,4 +80,5 @@ class BlockchainService:
         self.dht.shutdown()
 
 if __name__ == '__main__':
-    embed()
+    args = sys.argv
+    bcs = BlockchainService(args[1])
