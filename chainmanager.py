@@ -4,9 +4,13 @@ import hashlib
 
 from transactionmanager import *
 from storage import *
+from messagemanager import *
+
+# TODO send each peers block
 
 class ChainManager:
-    def __init__(self):
+    def __init__(self, msgmng):
+        self.msg = msgmng
         self.storage = Storage()
         self.txmng = TransactionManager()
         self.genesis = {"blocknum":0,"tx":[{"id":0, "body":"hello world!"}],"previous_hash":0}
@@ -26,7 +30,8 @@ class ChainManager:
         if self.verify_block(newblock):
             self.lastblock = self.storage.set(newblock)
             msg = {"type":"block","body":newblock}
-            #self.msg.sendall(msg)
+            rel, res = self.msg.send("block", newblock, {"addr":"192.168.56.101", "port":5555})
+            print(res)
             return True
         else:
             return False
@@ -41,8 +46,5 @@ class ChainManager:
             return False
 
 chm = ChainManager()
-chm.make_new_block(100)
-chm.make_new_block(100)
-chm.make_new_block(100)
 chm.make_new_block(100)
 print(json.dumps(chm.storage.chain, indent=4))
