@@ -15,6 +15,7 @@ RUN groupadd -g 1000 developer && \
 
         USER chike
 
+WORKDIR /home/chike
 RUN sudo apt -y upgrade
 
 # install pyenv
@@ -29,3 +30,5 @@ RUN eval "$(pyenv init -)"
 # install python
 RUN pyenv install 3.6.0
 RUN pyenv global 3.6.0
+
+ADD . /home/chike/blockchain
