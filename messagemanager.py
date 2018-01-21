@@ -9,6 +9,11 @@ class MessageManager:
         self.peers = []
 
     def send(self, msgtype, msgbody, dist, res=True):
+        '''
+        msgtype(str): block,getblk
+        msgbody(str): message body
+        dist(dict): {"addr":distination address(str), "port": distination port(int)}
+        '''
         msg = {"type": msgtype, "body":msgbody, "from":{"addr":self.addr, "port":self.port}}
         msg = json.dumps(msg)
         msg = msg.encode('utf-8')
@@ -38,17 +43,15 @@ class MessageManager:
         '''
         return True, response
 
-    def recever(self):
+    def init_reciever(self):
         serversock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         serversock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         serversock.bind((self.addr, self.port))
         serversock.listen(100)
+        return serversock
 
+    def reciever(self, serversock):
         clientsock, (client_address, client_port) = serversock.accept()
         rcvmsg = clientsock.recv(1024)
         rcvmsg = rcvmsg.decode("utf-8")
-
-        print(rcvmsg)
-
-        rtnmsg = rcvmsg
-        clientsock.send(rtnmsg.encode("utf-8"))
+        return rcvmsg, clientsock
