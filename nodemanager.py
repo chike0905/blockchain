@@ -25,11 +25,11 @@ class NodeManager:
             print(rcvmsg)
             rcvmsg = json.loads(rcvmsg)
             if rcvmsg["type"] == "block":
-                self.get_new_block(rcvmsg["body"], rcvmsg["from"])
+                 self.get_new_block(rcvmsg["body"], rcvmsg["from"])
             elif rcvmsg["type"] == "getblk":
                 resmsg = json.dumps(self.chainmng.get_block(rcvmsg["body"]))
             elif rcvmsg["type"] == "tx":
-                print("tx is not implimented")
+                 self.get_new_tx(rcvmsg["body"], rcvmsg["from"])
 
             if rcvmsg["res"]:
                 clientsock.send(resmsg.encode("utf-8"))
@@ -53,3 +53,16 @@ class NodeManager:
             print("Call Chain Resolver")
             ChainResolver(self.chainmng, self.msgmng, block, dist)
             return False
+
+    def get_new_tx(self, tx, dist):
+        if tx["id"] in self.chainmng.txmng.txpool.keys():
+            return False
+        else:
+            self.chainmng.txmng.set(tx)
+            return True
+
+    def make_tx(self):
+        tx = self.chainmng.txmng.make_new_tx()
+        self.chainmng.txmng.set(tx)
+        self.msgmng.send_all("tx", tx)
+        return True

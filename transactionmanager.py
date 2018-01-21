@@ -1,4 +1,6 @@
 import hashlib
+import random
+import json
 
 class TransactionManager:
     def __init__(self):
@@ -6,7 +8,7 @@ class TransactionManager:
 
     def set(self, tx):
         txstr = json.dumps(tx)
-        txhash = hashlib.sha256(lastblockstr.encode("utf-8")).hexdigest()
+        txhash = hashlib.sha256(tx["body"].encode("utf-8")).hexdigest()
         self.txpool[txhash] = tx
         return txhash
 
@@ -19,6 +21,16 @@ class TransactionManager:
             txs.append(self.txpool[id])
         return txs
 
-    def remove(id):
+    def remove(self, id):
         del self.txpool[id]
         return True
+
+    def make_new_tx(self):
+        # make random body
+        seq='0123456789abcdefghijklmnopqrstuvwxyz'
+        sr = random.SystemRandom()
+        randstr = ''.join([sr.choice(seq) for i in range(50)])
+
+        tx = {"id":hashlib.sha256(randstr.encode('utf-8')).hexdigest(),"body":randstr}
+        self.set(tx)
+        return tx
