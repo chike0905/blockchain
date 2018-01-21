@@ -39,6 +39,9 @@ class ChainManager:
             return False
 
     def append_block(self, block):
+        for tx in block["tx"]:
+            if tx["id"] in self.txmng.txpool.keys():
+                self.txmng.txpool.pop(tx["id"])
         self.lastblock = self.storage.set(block)
         print("New Block(blocknum:%s id:%s) is appended to my chain" %(block["blocknum"], self.lastblock))
 
