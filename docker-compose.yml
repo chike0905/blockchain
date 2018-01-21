@@ -1,0 +1,7 @@
+version: '2'
+
+services:
+    node1:
+        build: "./"
+    node2:
+        build: "./"
