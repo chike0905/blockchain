@@ -1,0 +1,73 @@
+@startuml
+skinparam shadowing false
+skinparam monochrome true
+title Resolv Block Sequence
+
+Node_Manager -> Chain_Resolver: Resolv Request
+activate Chain_Resolver
+Chain_Resolver -> Chain_Resolver: Check Stuation
+alt conflict
+  Chain_Resolver -> Chain_Manager: Get Last Block Request
+  activate Chain_Manager
+  Chain_Manager -> Storage: Get Last Block
+  activate Storage
+  Storage --> Chain_Manager :Last Block
+  deactivate Storage
+  Chain_Manager --> Chain_Resolver: Last Block
+  deactivate Chain_Manager
+  Chain_Resolver -> Chain_Resolver: Comparison Score of Block\nin Storage and new Block
+  alt Block in Storage is correct
+    note over Chain_Resolver:Do nothing
+  else New Block is correct
+    Chain_Resolver -> Chain_Manager: Remove Last Block Request
+    activate Chain_Manager
+    Chain_Manager -> TX_Manager: Save TXs in Last Block in TX Pool
+    Chain_Manager -> Storage: Remove Last Block
+    Chain_Manager --> Chain_Resolver: Pass/Fail
+    deactivate Chain_Manager
+    Chain_Resolver -> Chain_Manager: Save Block Request
+    activate Chain_Manager
+    Chain_Manager -> TX_Manager: Remove TXs in New Block from TX Pool
+    Chain_Manager -> Storage: Save New Block
+    Chain_Manager --> Chain_Resolver: Pass/Fail
+    deactivate Chain_Manager
+  end
+else orphan
+  loop from Last Block in Storage to New Block
+    Chain_Resolver -> Message_Manager: Request Get Block
+    activate Message_Manager
+    Message_Manager -> Other_Node: Get Block Mssage
+    Other_Node --> Message_Manager: Block
+    Message_Manager  --> Chain_Resolver: Block
+    deactivate Message_Manager
+    Chain_Resolver -> Chain_Manager: Block
+    activate Chain_Manager
+    Chain_Manager -> Chain_Manager: Verify Block
+    Chain_Manager --> Chain_Resolver: Pass/Fail
+    deactivate Chain_Manager
+    alt Pass
+      Chain_Resolver -> Chain_Manager: Save Block Request
+      activate Chain_Manager
+      Chain_Manager -> TX_Manager: Remove TXs in New Block from TX Pool
+      Chain_Manager -> Storage: Save Block
+      Chain_Manager --> Chain_Resolver: Pass/Fail
+      deactivate Chain_Manager
+    else Fail
+      Chain_Resolver -> Chain_Resolver: Take as a Conflict
+    end
+  end
+else old
+  Chain_Resolver -> Chain_Manager: Get Block of Numebr\nin New Block Request
+  activate Chain_Manager
+  Chain_Manager -> Storage: Read Block
+  Storage --> Chain_Manager: Block
+  Chain_Manager --> Chain_Resolver: Block
+  deactivate Chain_Manager
+  Chain_Resolver -> Chain_Resolver: Check Block is\nSame as in Storage
+  alt Same Block in Storage
+    note over Chain_Resolver:Do nothing
+  else Different Block in Storage
+    Chain_Resolver -> Chain_Resolver: Take as a conflict
+  end
+end
+@enduml
