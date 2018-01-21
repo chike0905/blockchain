@@ -1,25 +1,38 @@
 @startuml
 skinparam shadowing false
 skinparam monochrome true
+title Classes
 
 Node_Manager <|-- Chain_Manager
 Node_Manager <|-- Message_Manager
 Chain_Manager <|-- Storage
 Chain_Manager <|-- TX_Manager
 
-Node_Manager : generate_block()
+Node_Manager : start_msg_receiver()
+Node_Manager : msg_receiver()
+Node_Manager : make_block()
+Node_Manager : get_new_block()
 
-Message_Manager : send()
+Message_Manager : addr
+Message_Manager : port
+Message_Manager : peers
 Message_Manager : add_peer()
-Message_Manager : rm_peer()
+Message_Manager : send()
+Message_Manager : send_all()
+Message_Manager : init_receiver()
 Message_Manager : reciever()
 
+Chain_Manager : genesis
+Chain_Manager : lastblock
 Chain_Manager : make_new_block()
 Chain_Manager : verify_block()
+Chain_Manager : append_block()
 
+Storage : chain
 Storage : get()
 Storage : set()
 
+TX_Manager : txpool
 TX_Manager : set()
 TX_Manager : get()
 TX_Manager : get_all()
