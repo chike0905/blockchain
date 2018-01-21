@@ -14,5 +14,5 @@ class NodeManager:
         sock = self.msgmng.init_reciever()
         while True:
             rcvmsg, clientsock = self.msgmng.reciever(sock)
-            print(recvmsg)
-            clientsock.send(rtnmsg.encode("utf-8"))
+            print(rcvmsg)
+            clientsock.send(rcvmsg.encode("utf-8"))
