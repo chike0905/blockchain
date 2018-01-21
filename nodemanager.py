@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import threading
+import json
 
 from chainmanager import *
 from messagemanager import *
@@ -8,11 +10,43 @@ class NodeManager:
         self.msgmng = MessageManager(addr, port)
         self.chainmng = ChainManager()
         print("Node start at %s:%s" %(addr, str(port)))
-        self.msg_reciver()
+        self.start_msg_receiver()
 
-    def msg_reciver(self):
-        sock = self.msgmng.init_reciever()
+    def start_msg_receiver(self):
+        rcvthread = threading.Thread(target=self.msg_receiver)
+        #rcvthread.setDaemon(True)
+        rcvthread.start()
+
+    def msg_receiver(self):
+        sock = self.msgmng.init_receiver()
         while True:
-            rcvmsg, clientsock = self.msgmng.reciever(sock)
+            rcvmsg, clientsock = self.msgmng.receiver(sock)
             print(rcvmsg)
-            clientsock.send(rcvmsg.encode("utf-8"))
+            rcvmsg = json.loads(rcvmsg)
+            if rcvmsg["type"] == "block":
+                self.get_new_block(rcvmsg["body"], rcvmsg["from"])
+            elif rcvmsg["type"] == "getblk":
+                print("getblock is not implimented")
+            elif rcvmsg["type"] == "tx":
+                print("tx is not implimented")
+
+            if rcvmsg["res"]:
+                clientsock.send(resmsg.encode("utf-8"))
+
+    def make_block(self, score):
+        '''
+        score: block score(int)
+        '''
+        newblock = self.chainmng.make_new_block(score)
+        if newblock:
+            self.msgmng.send_all("block", newblock)
+            return True
+        else:
+            return False
+
+    def get_new_block(self, block, dist):
+        if self.chainmng.verify_block(block):
+            self.chainmng.append_block(block)
+            return True
+        else:
+            return False

@@ -24,7 +24,7 @@ class ChainManager:
                 "score":score
                 }
         if self.verify_block(newblock):
-            self.lastblock = self.storage.set(newblock)
+            self.append_block(newblock)
             return newblock
         else:
             return False
@@ -37,3 +37,7 @@ class ChainManager:
             return True
         else:
             return False
+
+    def append_block(self, block):
+        self.lastblock = self.storage.set(block)
+        print("New Block(blocknum:%s id:%s) is appended to my chain" %(block["blocknum"], self.lastblock))
