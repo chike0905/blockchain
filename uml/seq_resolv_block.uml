@@ -70,4 +70,5 @@ else old
     Chain_Resolver -> Chain_Resolver: Take as a conflict
   end
 end
+deactivate Chain_Resolver
 @enduml

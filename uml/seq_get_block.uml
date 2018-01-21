@@ -30,4 +30,5 @@ else Fail
     Resolve Block
   end ref
 end
+deactivate Node_Manager
 @enduml
