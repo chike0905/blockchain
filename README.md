@@ -10,3 +10,6 @@ This is Blockchain for my implement training.
 
 ## Get New Block
 ![Get New Block](https://raw.githubusercontent.com/chike0905/blockchain/images/uml/seq_get_block.png)
+
+## Resolv Block
+![Resolv Block](https://raw.githubusercontent.com/chike0905/blockchain/images/uml/seq_resolv_block.png)

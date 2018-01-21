@@ -1,7 +1,16 @@
-language: python
-python:
-    - 3.6
-install:
-    - pip install ipython
+sudo: required
+services:
+  - docker
+env:
+  DOCKER_COMPOSE_VERSION: 1.8.0
+before_install:
+    - sudo apt-get update
+    - sudo rm /usr/local/bin/docker-compose
+    - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+    - chmod +x docker-compose
+    - sudo mv docker-compose /usr/local/bin
 script:
-    - pytest tests.py
+    - docker-compose build
+    - sh -c 'docker-compose run node1' &
+    - sleep 5
+    - docker-compose run node2

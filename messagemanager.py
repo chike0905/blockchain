@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import socket
 import json
+import re
 
 class MessageManager:
     def __init__(self, addr, port):
@@ -9,7 +10,12 @@ class MessageManager:
         self.peers = []
 
     def send(self, msgtype, msgbody, dist, res=True):
-        msg = {"type": msgtype, "body":msgbody, "from":{"addr":self.addr, "port":self.port}}
+        '''
+        msgtype(str): block,getblk
+        msgbody(str): message body
+        dist(dict): {"addr":distination address(str), "port": distination port(int)}
+        '''
+        msg = {"type": msgtype, "body":msgbody, "from":{"addr":self.addr, "port":self.port}, "res":res}
         msg = json.dumps(msg)
         msg = msg.encode('utf-8')
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -38,17 +44,38 @@ class MessageManager:
         '''
         return True, response
 
-    def recever(self):
+    def send_all(self, msgtype, msgbody, res=False):
+        '''
+        msgtype(str): block,getblk
+        msgbody(str): message body
+        dist(dict): {"addr":distination address(str), "port": distination port(int)}
+        '''
+        for peer in self.peers:
+            result, res = self.send(msgtype, msgbody, peer, res)
+        return result
+
+    def init_receiver(self):
         serversock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         serversock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         serversock.bind((self.addr, self.port))
         serversock.listen(100)
+        return serversock
 
+    def receiver(self, serversock):
         clientsock, (client_address, client_port) = serversock.accept()
         rcvmsg = clientsock.recv(1024)
         rcvmsg = rcvmsg.decode("utf-8")
+        return rcvmsg, clientsock
 
-        print(rcvmsg)
-
-        rtnmsg = rcvmsg
-        clientsock.send(rtnmsg.encode("utf-8"))
+    def add_peer(self, peer):
+        '''
+        peer(dict): {"addr":peer address(str), "port": peer port(int)}
+        '''
+        re_addr = re.compile("((?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))")
+        if re_addr.search(peer["addr"]):
+            self.peers.append(peer)
+            print("Done add peer(%s:%s)" % (peer["addr"], int(peer["port"])))
+            return True
+        else:
+            print("%s is not IPv4 address" % peer["addr"])
+            return False
