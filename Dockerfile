@@ -29,6 +29,9 @@ ENV PATH $PYENV_ROOT/bin:$PYENV_ROOT/shims:$PATH
 RUN pyenv install 3.6.0
 RUN pyenv global 3.6.0
 
+# for debug
+RUN pip install ipython
+
 # add apps
 ADD . /home/chike/blockchain
 

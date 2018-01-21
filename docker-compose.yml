@@ -1,7 +1,24 @@
 version: '2'
 
 services:
-    node1:
-        build: "./"
-    node2:
-        build: "./"
+  node1:
+    build: "./"
+    environment:
+      NODE: 1
+    networks:
+      vpcbr:
+        ipv4_address: 10.2.0.2
+  node2:
+    build: "./"
+    environment:
+      NODE: 2
+    networks:
+      vpcbr:
+        ipv4_address: 10.2.0.3
+networks:
+  vpcbr:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.2.0.0/16
+          gateway: 10.2.0.1
