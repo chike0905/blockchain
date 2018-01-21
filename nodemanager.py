@@ -3,6 +3,7 @@ import threading
 import json
 
 from chainmanager import *
+from chainresolver import *
 from messagemanager import *
 
 class NodeManager:
@@ -26,7 +27,7 @@ class NodeManager:
             if rcvmsg["type"] == "block":
                 self.get_new_block(rcvmsg["body"], rcvmsg["from"])
             elif rcvmsg["type"] == "getblk":
-                print("getblock is not implimented")
+                resmsg = json.dumps(self.chainmng.get_block(rcvmsg["body"]))
             elif rcvmsg["type"] == "tx":
                 print("tx is not implimented")
 
@@ -49,4 +50,6 @@ class NodeManager:
             self.chainmng.append_block(block)
             return True
         else:
+            print("Call Chain Resolver")
+            ChainResolver(self.chainmng, self.msgmng, block, dist)
             return False

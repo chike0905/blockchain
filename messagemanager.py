@@ -23,6 +23,7 @@ class MessageManager:
         client.send(msg)
         if res:
             response = client.recv(4096)
+            response = response.decode("utf-8")
         else:
             response = None
         '''
@@ -50,8 +51,11 @@ class MessageManager:
         msgbody(str): message body
         dist(dict): {"addr":distination address(str), "port": distination port(int)}
         '''
-        for peer in self.peers:
-            result, res = self.send(msgtype, msgbody, peer, res)
+        if len(self.peers) != 0:
+            for peer in self.peers:
+                result, res = self.send(msgtype, msgbody, peer, res)
+        else:
+            result = False
         return result
 
     def init_receiver(self):

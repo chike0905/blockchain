@@ -6,7 +6,10 @@ class Storage:
         self.chain = {}
 
     def get(self, id):
-        return json.loads(self.chain[id])
+        try:
+            return json.loads(self.chain[id])
+        except KeyError:
+            return False
 
     def set(self, block):
         blockstr = json.dumps(block)

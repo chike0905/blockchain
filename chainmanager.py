@@ -41,3 +41,6 @@ class ChainManager:
     def append_block(self, block):
         self.lastblock = self.storage.set(block)
         print("New Block(blocknum:%s id:%s) is appended to my chain" %(block["blocknum"], self.lastblock))
+
+    def get_block(self, id):
+        return self.storage.get(id)
