@@ -12,5 +12,5 @@ before_install:
 script:
     - docker-compose build
     - sh -c 'docker-compose run node1' &
-    - sleep5
+    - sleep 5
     - docker-compose run node2
