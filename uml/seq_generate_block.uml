@@ -2,25 +2,35 @@
 skinparam shadowing false
 skinparam monochrome true
 
-title Blockchain: Generate New Block
+title Generate New Block
 
+Node_Manager -> Chain_Manager: Generate Block Request
+activate Node_Manager
 Chain_Manager -> Storage: Get Last Block
 activate Chain_Manager
 Storage --> Chain_Manager: Last Block
-Chain_Manager -> Chain_Manager: Hash Last Block by SHA256
+Chain_Manager -> Chain_Manager: Hash Last Block
 Chain_Manager -> TX_Manager: Get All TXs in TX Pool
-TX_Manager -> Chain_Manager: All TXs in TX Pool
-Chain_Manager -> Chain_Manager: Generate  New Block
-Chain_Manager -> Block_Verifier: Verify New Block
-Block_Verifier -> Chain_Manager: Pass/Fail
+TX_Manager --> Chain_Manager: All TXs in TX Pool
+Chain_Manager -> Chain_Manager: Generate New Block
+Chain_Manager -> Chain_Manager: Verify New Block
 alt Pass
-  Chain_Manager -> Storage: Save New Block
-  Chain_Manager -> Message_Manager: Send New Block to all Peer
-  loop for all peers
-    Message_Manager -> Node: Send New Block
-  end
+  Chain_Manager --> Node_Manager: New Block
 else Fail
-  note over Chain_Manager: Do Nothing(Chain is updated\nwhile generating new Blcok)
+  Chain_Manager --> Node_Manager: Fail
 end
 deactivate Chain_Manager
+alt New Block
+  Node_Manager -> Chain_Manager: Save New Block Request
+  Chain_Manager -> Storage: Save New Block
+  Node_Manager -> Message_Manager: Send New Block to all Peer
+  activate Message_Manager
+  loop for all peers
+    Message_Manager -> Other_Node: Send New Block
+  end
+  deactivate Message_Manager
+else Fail
+  note over Node_Manager: Do Nothing(Chain is updated\nwhile generating new Blcok)
+end
+deactivate Node_Manager
 @enduml
