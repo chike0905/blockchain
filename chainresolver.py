@@ -43,8 +43,6 @@ class ChainResolver:
         forkpoint, peerblock = self.search_fork_point(block)
         localblock = self.get_local_conflict_block(forkpoint)
         print("Conflict start from %s" %localblock["blocknum"])
-        print(peerblock)
-        print(localblock)
         if localblock["score"] >= peerblock["score"]:
             print("local is corect")
             return False

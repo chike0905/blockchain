@@ -52,7 +52,12 @@ class ChainManager:
         return True
 
     def get_block(self, id):
-        return self.storage.get(id)
+        result = self.storage.get(id)
+        tmplast = self.storage.get(self.lastblock)
+        # HACK: removed block still in storage, not response
+        if result["blocknum"] > tmplast["blocknum"]:
+            result = False
+        return result
 
     def get_block_id(self, block):
         blockstr = json.dumps(block)
