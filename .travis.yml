@@ -13,4 +13,5 @@ script:
     - docker-compose build
     - sh -c 'docker-compose run node1' &
     - sleep 20
-    - docker-compose run node2
+    - sh -c 'docker-compose run node2' &
+    - docker-compose down
