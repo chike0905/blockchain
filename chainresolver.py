@@ -15,7 +15,7 @@ class ChainResolver:
         if situation == "orphan":
             self.resolv_orphan(self.block)
         elif situation == "old":
-            self.resolv_old()
+            self.resolv_old(self.block)
         elif situation == "conflict":
             self.resolv_conflict(self.block)
         return True
@@ -29,35 +29,44 @@ class ChainResolver:
         else:
             return "conflict"
 
-    def resolv_old(self):
+    def resolv_old(self, block):
         print("it is old")
+        target = self.chainmng.get_block_id(block)
+        localblock = self.chainmng.get_block(target)
+        if not localblock:
+            print("it is old and conflict!")
+            self.resolv_conflict(block)
         return True
 
     def resolv_conflict(self, block):
         print("it is conflict")
-        target = block["previous_hash"]
-        localblock = self.chainmng.get_block(self.chainmng.lastblock)
-        localtarget = localblock["previous_hash"]
-        conflict = {"local": localblock, "peer":block}
-        while True:
-            result, res = self.msgmng.send("getblk", target, self.dist)
-            peerblock = json.loads(res)
-            localblock = self.chainmng.get_block(localtarget)
-            if peerblock["previous_hash"] == localblock["previous_hash"]:
-                print("Conflict start from %s" %localblock["blocknum"])
-                if conflict["local"]["score"] >= conflict["peer"]["score"]:
-                    print("local is corect")
-                    return False
-                else:
-                    print("peer is corect")
-                    while not self.chainmng.verify_block(conflict["peer"]):
-                        self.chainmng.remove_last_block()
-                    self.chainmng.append_block(conflict["peer"])
-                    return True
-            else:
-                conflict = {"local": localblock, "peer":peerblock}
-                target = peerblock["previous_hash"]
-                localtarget = localblock["previous_hash"]
+        forkpoint, peerblock = self.search_fork_point(block)
+        localblock = self.get_local_conflict_block(forkpoint)
+        print("Conflict start from %s" %localblock["blocknum"])
+        print(peerblock)
+        print(localblock)
+        if localblock["score"] >= peerblock["score"]:
+            print("local is corect")
+            return False
+        else:
+            print("peer is corect")
+            while not self.chainmng.verify_block(peerblock):
+                self.chainmng.remove_last_block()
+            self.chainmng.append_block(peerblock)
+            return True
+
+    def search_fork_point(self, block):
+        tmp = block
+        while not self.chainmng.get_block(tmp["previous_hash"]):
+            result, res = self.msgmng.send("getblk", tmp["previous_hash"], self.dist)
+            tmp = json.loads(res)
+        return tmp["previous_hash"], tmp
+
+    def get_local_conflict_block(self, forkpoint):
+        tmp = self.chainmng.get_block(self.chainmng.lastblock)
+        while forkpoint != tmp["previous_hash"]:
+            tmp = self.chainmng.get_block(tmp["previous_hash"])
+        return tmp
 
     def resolv_orphan(self, block):
         lastblock = self.chainmng.get_block(self.chainmng.lastblock)

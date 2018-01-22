@@ -25,6 +25,7 @@ def test_send_orphan(node):
     node.make_block(100)
 
 def test_conflict_correct(node):
+    test_make_block_and_tx(node, 1000, 3)
     node.msgmng.add_peer({"addr":"10.2.0.2", "port":5555})
     test_make_block_and_tx(node, 1000, 1)
 
@@ -38,6 +39,10 @@ def test_send_orphan_and_conflicts(node):
     node.msgmng.add_peer({"addr":"10.2.0.2", "port":5555})
     node.make_block(1000)
 
+def test_send_old_block(node):
+    node.msgmng.add_peer({"addr":"10.2.0.2", "port":5555})
+    test_make_block(node, 1000,1)
+
 args = sys.argv
 node = NodeManager(args[1])
 
@@ -45,3 +50,4 @@ node = NodeManager(args[1])
 #test_conflict_correct(node)
 #test_conflict_not_correct(node)
 test_send_orphan_and_conflicts(node)
+#test_send_old_block(node)
