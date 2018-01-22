@@ -45,5 +45,16 @@ class ChainManager:
         self.lastblock = self.storage.set(block)
         print("New Block(blocknum:%s id:%s) is appended to my chain" %(block["blocknum"], self.lastblock))
 
+    def remove_last_block(self):
+        tmplast = self.get_block(self.lastblock)
+        print("Block(blocknum:%s id:%s) is removed to my chain" %(tmplast["blocknum"], self.lastblock))
+        self.lastblock = tmplast["previous_hash"]
+        return True
+
     def get_block(self, id):
         return self.storage.get(id)
+
+    def get_block_id(self, block):
+        blockstr = json.dumps(block)
+        blockhash = hashlib.sha256(blockstr.encode("utf-8")).hexdigest()
+        return blockhash
