@@ -83,3 +83,16 @@ class MessageManager:
         else:
             print("%s is not IPv4 address" % peer["addr"])
             return False
+
+    def rm_peer(self, peer):
+        '''
+        peer(dict): {"addr":peer address(str), "port": peer port(int)}
+        '''
+        if peer in self.peers:
+            self.peers.remove(peer)
+            print("Remove peer (%s:%s)" % (peer["addr"], peer["port"]))
+            return True
+        else:
+            print("%s:%s is not in peer" % (peer["addr"], peer["port"]))
+            return False
+
