@@ -12,10 +12,10 @@ def test_orphan_and_conflict(node):
 args = sys.argv
 node = NodeManager(args[1])
 
-node.make_block(100)
-tmplast = node.chainmng.lastblock
-node.chainmng.remove_last_block()
-print(node.chainmng.get_block(tmplast))
+#node.make_block(100)
+#tmplast = node.chainmng.lastblock
+#node.chainmng.remove_last_block()
+#print(node.chainmng.get_block(tmplast))
 
 #test_orphan(node)
-#test_orphan_and_conflict(node)
+test_orphan_and_conflict(node)
