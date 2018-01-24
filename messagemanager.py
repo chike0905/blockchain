@@ -11,7 +11,7 @@ class MessageManager:
 
     def send(self, msgtype, msgbody, dist, res=True):
         '''
-        msgtype(str): block,getblk
+        msgtype(str): block, tx, getblk, getlastblk
         msgbody(str): message body
         dist(dict): {"addr":distination address(str), "port": distination port(int)}
         '''

@@ -28,6 +28,8 @@ class NodeManager:
                  self.get_new_block(rcvmsg["body"], rcvmsg["from"])
             elif rcvmsg["type"] == "getblk":
                 resmsg = json.dumps(self.chainmng.get_block(rcvmsg["body"]))
+            elif rcvmsg["type"] == "getlastblk":
+                resmsg = json.dumps(self.chainmng.get_block(self.chainmng.lastblock))
             elif rcvmsg["type"] == "tx":
                  self.get_new_tx(rcvmsg["body"], rcvmsg["from"])
 
