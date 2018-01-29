@@ -11,12 +11,18 @@ class NodeManager:
         self.msgmng = MessageManager(addr, port)
         self.chainmng = ChainManager()
         print("Node start at %s:%s" %(addr, str(port)))
-        self.start_msg_receiver()
+        self.rcvthread = self.start_msg_receiver()
 
     def start_msg_receiver(self):
         rcvthread = threading.Thread(target=self.msg_receiver)
-        #rcvthread.setDaemon(True)
+        rcvthread.setDaemon(True)
+        rcvthread.stop_event = threading.Event()
         rcvthread.start()
+        return rcvthread
+
+    def stop_msg_receiver(self):
+        self.rcvthread.stop_event.set()
+        return True
 
     def msg_receiver(self):
         sock = self.msgmng.init_receiver()
