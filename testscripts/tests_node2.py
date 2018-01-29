@@ -59,26 +59,31 @@ def check_node1_setuped(node):
 def check_resolved(node):
     res, peer = node.msgmng.send("getlastblk", "", {"addr":"10.2.0.2", "port":5555})
     local = json.dumps(node.chainmng.get_block(node.chainmng.lastblock))
-    print(peer)
-    print(local)
-    print(peer == local)
+    print("peer:" + peer)
+    print("local:" + local)
+    return peer == local
 
 # wait for node 1
-time.sleep(5)
+time.sleep(2)
 
 args = sys.argv
 node = NodeManager(args[1])
 
+print("==test old Block==")
+node.msgmng.add_peer({"addr":"10.2.0.2", "port":5555})
+node.make_block(1111)
+print(check_resolved(node))
+print("==test old Block done==")
 #test_remove_peer(node)
 
 #test_send_orphan(node)
 #test_conflict_correct(node)
 #test_conflict_not_correct(node)
-test_send_orphan_and_conflicts(node)
+#test_send_orphan_and_conflicts(node)
 #test_send_old_block(node)
 
 #check_resolved(node)
 
-time.sleep(5)
+time.sleep(3)
 node.msgmng.send("shutdown", "hogehoge", {"addr":"10.2.0.2", "port":5555}, False)
 node.shutdown = True

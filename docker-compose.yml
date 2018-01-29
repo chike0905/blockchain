@@ -15,8 +15,34 @@ services:
     networks:
       vpcbr:
         ipv4_address: 10.2.0.3
-    depends_on:
-      - node1
+  node3:
+    build: "./"
+    environment:
+      NODE: 3
+    networks:
+      vpcbr:
+        ipv4_address: 10.2.0.4
+  node4:
+    build: "./"
+    environment:
+      NODE: 4
+    networks:
+      vpcbr:
+        ipv4_address: 10.2.0.5
+  node5:
+    build: "./"
+    environment:
+      NODE: 5
+    networks:
+      vpcbr:
+        ipv4_address: 10.2.0.6
+  node6:
+    build: "./"
+    environment:
+      NODE: 6
+    networks:
+      vpcbr:
+        ipv4_address: 10.2.0.7
 networks:
   vpcbr:
     driver: bridge
