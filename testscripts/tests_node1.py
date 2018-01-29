@@ -19,3 +19,5 @@ node = NodeManager(args[1])
 
 #test_orphan(node)
 test_orphan_and_conflict(node)
+
+node.stop_msg_receiver()
