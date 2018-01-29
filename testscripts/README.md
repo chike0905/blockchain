@@ -7,13 +7,15 @@ This directory is for tests by Docoker-compose.
 
 ## How to run tests
 In root directory of this repository.
-'''
+
+'
 docker-compose build
 docker-compose run
-'''
+'
 
 Each tests file in this directory run as docker containor.
-How run is see '''Dockerfile''' and '''docker-compose.yml''' in root directory of this repository.
+
+How run is see 'Dockerfile' and 'docker-compose.yml' in root directory of this repository.
 
 ## Files
 Pair test files is run as one of tests.
