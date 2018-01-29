@@ -63,15 +63,22 @@ def check_resolved(node):
     print(local)
     print(peer == local)
 
+# wait for node 1
+time.sleep(5)
+
 args = sys.argv
 node = NodeManager(args[1])
 
-test_remove_peer(node)
+#test_remove_peer(node)
 
 #test_send_orphan(node)
 #test_conflict_correct(node)
 #test_conflict_not_correct(node)
-#test_send_orphan_and_conflicts(node)
+test_send_orphan_and_conflicts(node)
 #test_send_old_block(node)
 
 #check_resolved(node)
+
+time.sleep(5)
+node.msgmng.send("shutdown", "hogehoge", {"addr":"10.2.0.2", "port":5555}, False)
+node.shutdown = True
