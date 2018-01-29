@@ -11,8 +11,5 @@ before_install:
     - sudo mv docker-compose /usr/local/bin
 script:
     - docker-compose build
-    - sh -c 'docker-compose run node1' &
-    - sleep 20
-    - sh -c 'docker-compose run node2' &
-    - sleep 20
+    - docker-compose up
     - docker-compose down
