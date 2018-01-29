@@ -1,5 +1,5 @@
 # Tests
-This directory is for tests by Docoker-compose.
+This directory is for tests by Docker-compose.
 
 ## Enviroment
 - docker 17.12.0
