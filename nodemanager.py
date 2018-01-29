@@ -11,7 +11,25 @@ class NodeManager:
         self.msgmng = MessageManager(addr, port)
         self.chainmng = ChainManager()
         print("Node start at %s:%s" %(addr, str(port)))
+        self.key = "hogehoge"
+        self.shutdown = False
         self.rcvthread = self.start_msg_receiver()
+        self.server = self.start_server()
+
+    def start_server(self):
+        thread = threading.Thread(target=self.shutdown_checker)
+        #thread.setDaemon(True)
+        thread.stop_event = threading.Event()
+        thread.start()
+        return thread
+
+    def shutdown_checker(self):
+        while True:
+            if self.shutdown:
+                print("Shutdown node")
+                self.server.stop_event.set()
+                self.stop_msg_receiver()
+                break
 
     def start_msg_receiver(self):
         rcvthread = threading.Thread(target=self.msg_receiver)
@@ -37,7 +55,12 @@ class NodeManager:
             elif rcvmsg["type"] == "getlastblk":
                 resmsg = json.dumps(self.chainmng.get_block(self.chainmng.lastblock))
             elif rcvmsg["type"] == "tx":
-                 self.get_new_tx(rcvmsg["body"], rcvmsg["from"])
+                self.get_new_tx(rcvmsg["body"], rcvmsg["from"])
+            elif rcvmsg["type"] == "shutdown":
+                if rcvmsg["body"] == self.key:
+                    self.shutdown = True
+                else:
+                    print("shutdown request key is different")
 
             if rcvmsg["res"]:
                 clientsock.send(resmsg.encode("utf-8"))
