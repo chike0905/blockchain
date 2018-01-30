@@ -55,7 +55,7 @@ class ChainManager:
         result = self.storage.get(id)
         tmplast = self.storage.get(self.lastblock)
         # HACK: removed block still in storage, not response
-        if result["blocknum"] > tmplast["blocknum"]:
+        if result and result["blocknum"] > tmplast["blocknum"]:
             result = False
         return result
 

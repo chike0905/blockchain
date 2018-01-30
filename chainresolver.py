@@ -36,8 +36,6 @@ class ChainResolver:
         if not localblock:
             print("it is old and conflict!")
             self.resolv_conflict(block)
-            peerlast = json.loads(self.msgmng.send("getlastblk", target, self.dist))
-            self.resolv_orphan(block)
         return True
 
     def resolv_conflict(self, block):
@@ -77,8 +75,8 @@ class ChainResolver:
             res = json.loads(res)
             if lastblock["blocknum"] == res["blocknum"]:
                 print("it is orphan and conflict!")
-                self.resolv_conflict(res)
-                self.resolv_orphan(block)
+                if self.resolv_conflict(res):
+                    self.resolv_orphan(block)
                 break
             else:
                 if self.chainmng.verify_block(res):
