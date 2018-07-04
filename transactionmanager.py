@@ -1,16 +1,15 @@
 import hashlib
 import random
 import json
+import primitivs.transaction as TX
 
 class TransactionManager:
     def __init__(self):
         self.txpool = {}
 
     def set(self, tx):
-        txstr = json.dumps(tx)
-        txhash = hashlib.sha256(tx["body"].encode("utf-8")).hexdigest()
-        self.txpool[txhash] = tx
-        return txhash
+        self.txpool[tx.id] = tx.dumpjson()
+        return tx.id
 
     def get(self, id):
         return self.txpool[id]
@@ -26,11 +25,6 @@ class TransactionManager:
         return True
 
     def make_new_tx(self):
-        # make random body
-        seq='0123456789abcdefghijklmnopqrstuvwxyz'
-        sr = random.SystemRandom()
-        randstr = ''.join([sr.choice(seq) for i in range(50)])
-
-        tx = {"id":hashlib.sha256(randstr.encode('utf-8')).hexdigest(),"body":randstr}
+        tx = TX.Transaction()
         self.set(tx)
         return tx
